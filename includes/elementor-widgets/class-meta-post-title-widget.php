@@ -16,7 +16,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
     }
 
     public function get_title() {
-        return 'Meta Post Title';
+        return 'SUZ Meta Post Title';
     }
 
     public function get_icon() {
