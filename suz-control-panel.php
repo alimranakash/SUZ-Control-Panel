@@ -164,3 +164,23 @@ add_action( 'elementor/frontend/after_register_styles', function() {
         );
     }
 } );
+
+add_action( 'elementor/query/event_lectures', function( $query ) {
+
+    $lecture_ids = get_post_meta( get_the_ID(), 'suz_event_lectures', true );
+
+    if ( ! empty( $lecture_ids ) ) {
+
+        if ( ! is_array( $lecture_ids ) ) {
+            $lecture_ids = array( $lecture_ids );
+        }
+
+        $query->set( 'post_type', 'suz_lecture' );
+        $query->set( 'post__in', $lecture_ids );
+        $query->set( 'orderby', 'post__in' );
+
+    } else {
+        $query->set( 'post__in', array(0) );
+    }
+
+});
