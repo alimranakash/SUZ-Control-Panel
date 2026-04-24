@@ -184,3 +184,43 @@ add_action( 'elementor/query/event_lectures', function( $query ) {
     }
 
 });
+
+add_action('wp_ajax_set_speaker_id', 'set_speaker_id');
+add_action('wp_ajax_nopriv_set_speaker_id', 'set_speaker_id');
+
+function set_speaker_id() {
+    if ( isset($_POST['speaker_id']) ) {
+    update_option('qqqqqqttttttt',$_POST['speaker_id']);
+        $_SESSION['suz_speaker_id'] = intval($_POST['speaker_id']);
+    }
+
+    wp_send_json_success();
+}
+
+add_action('init', function(){
+    update_option('qqqqqsssssssss',1);
+    if (!session_id()) {
+        session_start();
+    }
+});
+
+add_action( 'elementor/query/speaker_card', function( $query ) {
+
+    $speaker_id = isset($_SESSION['suz_speaker_id']) ? intval($_SESSION['suz_speaker_id']) : 0;
+
+    update_option('qqqqqdddddddd', $speaker_id); // debug
+
+    if ( $speaker_id ) {
+
+        $query->set( 'post_type', 'suz_speaker' ); // ⚠️ তোমার CPT use করো
+        $query->set( 'post__in', array( $speaker_id ) );
+        $query->set( 'posts_per_page', 1 ); // 🔥 IMPORTANT
+        $query->set( 'orderby', 'post__in' );
+        $query->set( 'ignore_sticky_posts', true );
+
+    } else {
+
+        $query->set( 'post__in', array(0) );
+    }
+
+});
