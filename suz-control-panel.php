@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: SUZ Control Panel (Active)
+ * Plugin Name: SUZ Control Panel
  * Plugin URI:  https://magicmedia.sk/ 
  * Description: Central dashboard to manage SUZ-related plugins & features.
  * Version:     1.2.0
