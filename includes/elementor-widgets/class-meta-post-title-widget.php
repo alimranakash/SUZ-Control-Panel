@@ -47,6 +47,28 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
             ]
         );
 
+        $this->add_control(
+            'popup_id',
+            [
+                'label' => 'Popup ID',
+                'type' => \Elementor\Controls_Manager::NUMBER,
+                'min' => 1,
+                'default' => 9094,
+                'description' => 'Elementor Popup ID (opened via showPopup).',
+            ]
+        );
+
+        $this->add_control(
+            'popup_template_id',
+            [
+                'label' => 'Popup Content Template ID',
+                'type' => \Elementor\Controls_Manager::NUMBER,
+                'min' => 1,
+                'default' => 9118,
+                'description' => 'Elementor template/page ID rendered inside #popup-content.',
+            ]
+        );
+
         $this->end_controls_section();
 
         // Style Tab
@@ -84,7 +106,8 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
     protected function render() {
         $settings = $this->get_settings_for_display();
         $key      = $settings['key'];
-        $popup_id = 9097;
+        $popup_id = isset( $settings['popup_id'] ) ? absint( $settings['popup_id'] ) : 0;
+        $popup_template_id = isset( $settings['popup_template_id'] ) ? absint( $settings['popup_template_id'] ) : 0;
 
         $users = get_post_meta( get_the_ID(), $key, true );
 
@@ -103,7 +126,9 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                     if ( is_numeric( $user_id ) && get_post( $user_id ) ) {
                         $items[] = '<a href="#"
                             class="suz-popup-btn"
-                            data-post-id="' . esc_attr( $user_id ) . '">'
+                            data-post_id="' . esc_attr( $user_id ) . '"
+                            data-popup_id="' . esc_attr( $popup_id ) . '"
+                            data-popup_template_id="' . esc_attr( $popup_template_id ) . '">'
                             . esc_html( get_the_title( $user_id ) ) .
                         '</a>';
                     }
@@ -115,216 +140,160 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
             echo '</div>';
             ?>
             <script>
-            jQuery(function($){
-                var popupId = <?php echo (int) $popup_id; ?>;
-                var ajaxUrl = '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>';
-                var nonce = '<?php echo esc_js( wp_create_nonce( 'suz_set_speaker_id_nonce' ) ); ?>';
-                var modalId = 'suz-simple-speaker-popup';
-                var styleId = 'suz-simple-speaker-popup-style';
+                // jQuery(document).on('click', '.suz-popup-btn', function(e) {
+                //     e.preventDefault();
+                //     var post_id = jQuery(this).data('post_id');
 
-                function ensureModal() {
-                    if (!document.getElementById(styleId)) {
-                        var style = document.createElement('style');
-                        style.id = styleId;
-                        style.textContent =
-                            '#'+modalId+'{display:none;position:fixed;inset:0;z-index:999999;}' +
-                            '#'+modalId+'.is-active{display:block;}' +
-                            '#'+modalId+' .suz-simple-popup-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);}' +
-                            '#'+modalId+' .suz-simple-popup-dialog{position:relative;max-width:980px;max-height:90vh;margin:4vh auto;background:#fff;overflow:auto;border-radius:10px;padding:20px;box-sizing:border-box;z-index:2;}' +
-                            '#'+modalId+' .suz-simple-popup-close{position:absolute;right:10px;top:8px;border:0;background:transparent;font-size:28px;line-height:1;cursor:pointer;padding:0 6px;color:#000;}' +
-                            '#'+modalId+' .suz-simple-popup-body{padding-top:10px;}' +
-                            '#'+modalId+' .suz-popup-loading,#'+modalId+' .suz-popup-empty{text-align:center;padding:32px 16px;}';
-                        document.head.appendChild(style);
-                    }
+                //     jQuery.ajax({
+                //         url: '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>', // frontend হলে localize করতে হবে
+                //         type: 'POST',
+                //         data: {
+                //             action: 'load_popup_content',
+                //             post_id: post_id
+                //         },
+                //         success: function(response) {
 
-                    if (!document.getElementById(modalId)) {
-                        var modalHtml = '' +
-                            '<div id="'+modalId+'" aria-hidden="true">' +
-                                '<div class="suz-simple-popup-overlay"></div>' +
-                                '<div class="suz-simple-popup-dialog" role="dialog" aria-modal="true">' +
-                                    '<button type="button" class="suz-simple-popup-close" aria-label="Close">&times;</button>' +
-                                    '<div class="suz-simple-popup-body"></div>' +
-                                '</div>' +
-                            '</div>';
-                        document.body.insertAdjacentHTML('beforeend', modalHtml);
-                    }
+                //             elementorProFrontend.modules.popup.showPopup({ id: 9094 });
+
+                //             jQuery(document).one('elementor/popup/show', function() {
+                //                 jQuery('#popup-content').html(response);
+                //             });
+
+                //         }
+                //     });
+                // });
+
+                const suzPopupLoaderStyleId = 'suz-popup-loader-style';
+
+                if (!document.getElementById(suzPopupLoaderStyleId)) {
+                    const loaderStyle = document.createElement('style');
+                    loaderStyle.id = suzPopupLoaderStyleId;
+                    loaderStyle.textContent = `
+                        .suz-popup-loader {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 14px;
+                            padding: 18px;
+                            border: 1px solid #e5e7eb;
+                            border-radius: 14px;
+                            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                        }
+                        .suz-popup-loader__top {
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                        }
+                        .suz-popup-loader__spinner {
+                            width: 26px;
+                            height: 26px;
+                            border: 3px solid #dbe3ec;
+                            border-top-color: #0ea5e9;
+                            border-radius: 50%;
+                            animation: suzLoaderSpin 0.85s linear infinite;
+                            flex-shrink: 0;
+                        }
+                        .suz-popup-loader__title {
+                            font-size: 15px;
+                            font-weight: 600;
+                            color: #0f172a;
+                            line-height: 1.3;
+                        }
+                        .suz-popup-loader__subtitle {
+                            font-size: 13px;
+                            color: #475569;
+                            margin-top: 2px;
+                            line-height: 1.35;
+                        }
+                        .suz-popup-loader__skeleton {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 8px;
+                        }
+                        .suz-popup-loader__skeleton span {
+                            display: block;
+                            height: 10px;
+                            border-radius: 999px;
+                            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+                            background-size: 220% 100%;
+                            animation: suzLoaderShimmer 1.2s ease-in-out infinite;
+                        }
+                        .suz-popup-loader__skeleton span:nth-child(1) { width: 100%; }
+                        .suz-popup-loader__skeleton span:nth-child(2) { width: 88%; }
+                        .suz-popup-loader__skeleton span:nth-child(3) { width: 64%; }
+                        @keyframes suzLoaderSpin {
+                            to { transform: rotate(360deg); }
+                        }
+                        @keyframes suzLoaderShimmer {
+                            0% { background-position: 100% 0; }
+                            100% { background-position: -100% 0; }
+                        }
+                        @media (prefers-reduced-motion: reduce) {
+                            .suz-popup-loader__spinner,
+                            .suz-popup-loader__skeleton span {
+                                animation: none;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(loaderStyle);
                 }
 
-                function openModal(contentHtml) {
-                    ensureModal();
-                    var modal = document.getElementById(modalId);
-                    if (!modal) {
+                function getPopupLoaderMarkup() {
+                    return `
+                        <div class="suz-popup-loader" role="status" aria-live="polite" aria-busy="true">
+                            <div class="suz-popup-loader__top">
+                                <span class="suz-popup-loader__spinner" aria-hidden="true"></span>
+                                <div>
+                                    <div class="suz-popup-loader__title">Loading content</div>
+                                    <div class="suz-popup-loader__subtitle">Please wait, preparing speaker data...</div>
+                                </div>
+                            </div>
+                            <div class="suz-popup-loader__skeleton" aria-hidden="true">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let isLoading = false;
+
+                jQuery(document).on('click', '.suz-popup-btn', function(e) {
+                    e.preventDefault();
+
+                    if (isLoading) return;
+
+                    isLoading = true;
+
+                    var post_id = parseInt(jQuery(this).data('post_id'), 10) || 0;
+                    var popup_id = parseInt(jQuery(this).data('popup_id'), 10) || 0;
+                    var popup_template_id = parseInt(jQuery(this).data('popup_template_id'), 10) || 0;
+
+                    if (!post_id || !popup_id || !popup_template_id) {
+                        isLoading = false;
                         return;
                     }
-                    var body = modal.querySelector('.suz-simple-popup-body');
-                    if (body) {
-                        body.innerHTML = contentHtml || '<div class="suz-popup-empty">No content found.</div>';
-                    }
-                    modal.classList.add('is-active');
-                    document.body.style.overflow = 'hidden';
+                    
+                    elementorProFrontend.modules.popup.showPopup({ id: popup_id });
 
-                    // Re-run Elementor frontend handlers for injected markup.
-                    if (typeof elementorFrontend !== 'undefined' && elementorFrontend.elementsHandler && body) {
-                        try {
-                            elementorFrontend.elementsHandler.runReadyTrigger($(body));
-                        } catch (e) {}
-                    }
-                }
+                    jQuery('#popup-content').html(getPopupLoaderMarkup());
 
-                function closeModal() {
-                    var modal = document.getElementById(modalId);
-                    if (!modal) {
-                        return;
-                    }
-                    modal.classList.remove('is-active');
-                    document.body.style.overflow = '';
-                }
-
-                function filterSpeakerCard(html, speakerId) {
-                    if (!html) {
-                        return '';
-                    }
-
-                    var $wrap = $('<div>').html(html);
-                    var selectors = [
-                        '[data-post-id="'+speakerId+'"]',
-                        '[data-id="'+speakerId+'"]',
-                        '.post-'+speakerId,
-                        '.elementor-post-'+speakerId,
-                        '[class*="post-'+speakerId+'"]',
-                        'a[href*="p='+speakerId+'"]'
-                    ];
-
-                    for (var i = 0; i < selectors.length; i++) {
-                        var $match = $wrap.find(selectors[i]).first();
-                        if ($match.length) {
-                            var $card = $match.closest('article, .elementor-post, .e-loop-item, .swiper-slide, .slick-slide, .speaker-card, .etn-speaker-item, .elementor-widget-container');
-                            if (!$card.length) {
-                                $card = $match;
-                            }
-
-                            if ($card.length) {
-                                return $('<div>').append($card.first().clone()).html();
-                            }
-                        }
-                    }
-
-                    return html;
-                }
-
-                function isMeaningfulHtml(html, speakerName) {
-                    if (!html) {
-                        return false;
-                    }
-
-                    var $tmp = $('<div>').html(html);
-                    $tmp.find('script,style,noscript,link').remove();
-
-                    var text = ($tmp.text() || '').replace(/\s+/g, ' ').trim();
-                    var hasMedia = $tmp.find('img,video,iframe,svg').length > 0;
-
-                    if (speakerName && text.toLowerCase().indexOf(String(speakerName).toLowerCase()) !== -1) {
-                        return true;
-                    }
-
-                    return text.length > 30 || hasMedia;
-                }
-
-                function matchesTargetSpeaker(html, speakerId, speakerName) {
-                    if (!html) {
-                        return false;
-                    }
-
-                    var $tmp = $('<div>').html(html);
-                    var hasIdMarker = $tmp.find(
-                        '[data-post-id="'+speakerId+'"], ' +
-                        '[data-id="'+speakerId+'"], ' +
-                        '.post-'+speakerId+', ' +
-                        '.elementor-post-'+speakerId+', ' +
-                        '[class*="post-'+speakerId+'"], ' +
-                        'a[href*="p='+speakerId+'"]'
-                    ).length > 0;
-
-                    if (hasIdMarker) {
-                        return true;
-                    }
-
-                    if (!speakerName) {
-                        return false;
-                    }
-
-                    var text = ($tmp.text() || '').replace(/\s+/g, ' ').trim().toLowerCase();
-                    return text.indexOf(String(speakerName).toLowerCase()) !== -1;
-                }
-
-                function pickBestPopupHtml(data, speakerId, speakerName) {
-                    var elementHtml = (data && data.element_html ? data.element_html : '').toString();
-                    var fallbackHtml = (data && data.fallback_html ? data.fallback_html : '').toString();
-                    var filteredHtml = filterSpeakerCard(elementHtml, speakerId);
-
-                    if (matchesTargetSpeaker(filteredHtml, speakerId, speakerName) && isMeaningfulHtml(filteredHtml, speakerName)) {
-                        return filteredHtml;
-                    }
-                    if (isMeaningfulHtml(fallbackHtml, speakerName)) {
-                        return fallbackHtml;
-                    }
-                    if (matchesTargetSpeaker(elementHtml, speakerId, speakerName) && isMeaningfulHtml(elementHtml, speakerName)) {
-                        return elementHtml;
-                    }
-
-                    return fallbackHtml || filteredHtml || elementHtml || '';
-                }
-
-                $(document)
-                    .off('click.suzSpeakerPopup', '.suz-popup-btn')
-                    .on('click.suzSpeakerPopup', '.suz-popup-btn', function(e){
-                        e.preventDefault();
-
-                        var speakerId = parseInt($(this).data('post-id'), 10) || 0;
-                        var speakerName = $.trim($(this).text());
-                        if (!speakerId) {
-                            return;
-                        }
-
-                        openModal('<div class="suz-popup-loading">Loading speaker...</div>');
-
-                        $.ajax({
-                            url: ajaxUrl,
-                            type: 'POST',
-                            dataType: 'json',
-                            data: {
-                                action: 'set_speaker_id',
-                                speaker_id: speakerId,
-                                popup_id: popupId,
-                                nonce: nonce
-                            }
-                        }).done(function(res){
-                            if (!res || !res.success || !res.data) {
-                                openModal('<div class="suz-popup-empty">Unable to load speaker details.</div>');
-                                return;
-                            }
-
-                            var html = pickBestPopupHtml(res.data, speakerId, speakerName);
-                            openModal(html);
-                        }).fail(function(){
-                            openModal('<div class="suz-popup-empty">Request failed. Please try again.</div>');
-                        });
-                    });
-
-                $(document)
-                    .off('click.suzSpeakerPopupClose', '#'+modalId+' .suz-simple-popup-close, #'+modalId+' .suz-simple-popup-overlay')
-                    .on('click.suzSpeakerPopupClose', '#'+modalId+' .suz-simple-popup-close, #'+modalId+' .suz-simple-popup-overlay', function(){
-                        closeModal();
-                    });
-
-                $(document)
-                    .off('keydown.suzSpeakerPopupEsc')
-                    .on('keydown.suzSpeakerPopupEsc', function(e){
-                        if (e.key === 'Escape') {
-                            closeModal();
+                    jQuery.ajax({
+                        url: '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>',
+                        type: 'POST',
+                        data: {
+                            action: 'load_popup_content',
+                            post_id: post_id,
+                            popup_template_id: popup_template_id
+                        },
+                        success: function(response) {
+                            jQuery('#popup-content').html(response);
+                        },
+                        complete: function() {
+                            isLoading = false;
                         }
                     });
-            });
+                });
             </script>
             <?php
         } else {

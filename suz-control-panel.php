@@ -185,121 +185,52 @@ add_action( 'elementor/query/event_lectures', function( $query ) {
 
 });
 
-add_action( 'wp_ajax_set_speaker_id', 'set_speaker_id' );
-add_action( 'wp_ajax_nopriv_set_speaker_id', 'set_speaker_id' );
+// add_action( 'elementor/query/speaker_card', function( $query ) {
+//     $speaker_id = 0;
 
-function suz_start_session() {
-    if ( ! session_id() && ! headers_sent() ) {
-        session_start();
+//     if ( isset( $GLOBALS['suz_current_popup_speaker_id'] ) ) {
+//         $speaker_id = absint( $GLOBALS['suz_current_popup_speaker_id'] );
+//     }
+
+//     if ( ! $speaker_id ) {
+//         suz_start_session();
+//         $speaker_id = isset( $_SESSION['suz_speaker_id'] ) ? absint( $_SESSION['suz_speaker_id'] ) : 0;
+//     }
+
+//     if ( $speaker_id ) {
+//         $query->set( 'post_type', 'suz_speaker' );
+//         $query->set( 'post__in', array( $speaker_id ) );
+//         $query->set( 'posts_per_page', 1 );
+//         $query->set( 'orderby', 'post__in' );
+//         $query->set( 'ignore_sticky_posts', true );
+//     } else {
+//         $query->set( 'post__in', array( 0 ) );
+//     }
+// } );
+
+add_action('wp_ajax_load_popup_content', 'load_popup_content');
+add_action('wp_ajax_nopriv_load_popup_content', 'load_popup_content');
+
+function load_popup_content() {
+    $post_id = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+    $popup_template_id = isset( $_POST['popup_template_id'] ) ? absint( $_POST['popup_template_id'] ) : 0;
+
+    if ( ! $post_id || ! $popup_template_id ) {
+        wp_die();
     }
+
+    global $post;
+    $post = get_post($post_id);
+    if ( ! $post ) {
+        wp_die();
+    }
+
+    setup_postdata($post);
+
+    \Elementor\Plugin::$instance->frontend->enqueue_styles();
+
+    echo \Elementor\Plugin::instance()->frontend->get_builder_content_for_display( $popup_template_id, true );
+
+    wp_reset_postdata();
+    wp_die();
 }
-add_action( 'init', 'suz_start_session', 1 );
-
-function suz_render_speaker_fallback_html( $speaker_id ) {
-    $speaker_id = absint( $speaker_id );
-    if ( ! $speaker_id ) {
-        return '';
-    }
-
-    $post = get_post( $speaker_id );
-    if ( ! $post || 'suz_speaker' !== $post->post_type ) {
-        return '';
-    }
-
-    $name        = get_the_title( $speaker_id );
-    $image_html  = get_the_post_thumbnail( $speaker_id, 'large', [ 'class' => 'suz-speaker-popup-thumb' ] );
-    $designation = function_exists( 'get_field' ) ? (string) get_field( 'suz_speaker_designation', $speaker_id ) : '';
-    $company     = function_exists( 'get_field' ) ? (string) get_field( 'suz_speaker_company', $speaker_id ) : '';
-    $content     = apply_filters( 'the_content', $post->post_content );
-
-    ob_start();
-    ?>
-    <div class="suz-speaker-popup-fallback">
-        <?php if ( $image_html ) : ?>
-            <div class="suz-speaker-popup-image"><?php echo $image_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
-        <?php endif; ?>
-        <h3 class="suz-speaker-popup-name"><?php echo esc_html( $name ); ?></h3>
-        <?php if ( $designation || $company ) : ?>
-            <p class="suz-speaker-popup-meta">
-                <?php
-                $meta_line = trim( $designation . ( $designation && $company ? ', ' : '' ) . $company );
-                echo esc_html( $meta_line );
-                ?>
-            </p>
-        <?php endif; ?>
-        <?php if ( $content ) : ?>
-            <div class="suz-speaker-popup-content"><?php echo wp_kses_post( $content ); ?></div>
-        <?php endif; ?>
-    </div>
-    <?php
-
-    return (string) ob_get_clean();
-}
-
-function set_speaker_id() {
-    if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'suz_set_speaker_id_nonce' ) ) {
-        wp_send_json_error( [ 'message' => 'Invalid nonce.' ], 403 );
-    }
-
-    $speaker_id = isset( $_POST['speaker_id'] ) ? absint( wp_unslash( $_POST['speaker_id'] ) ) : 0;
-    $popup_id   = isset( $_POST['popup_id'] ) ? absint( wp_unslash( $_POST['popup_id'] ) ) : 9097;
-
-    if ( ! $speaker_id ) {
-        wp_send_json_error( [ 'message' => 'Invalid speaker id.' ], 400 );
-    }
-
-    suz_start_session();
-    $_SESSION['suz_speaker_id'] = $speaker_id;
-
-    $element_html = '';
-    $fallback_html = suz_render_speaker_fallback_html( $speaker_id );
-
-    if ( $popup_id && class_exists( '\\Elementor\\Plugin' ) ) {
-        $GLOBALS['suz_current_popup_speaker_id'] = $speaker_id;
-        $popup_content = \Elementor\Plugin::instance()->frontend->get_builder_content_for_display( $popup_id, true );
-
-        if ( ! empty( $popup_content ) ) {
-            $element_html = sprintf(
-                '<div class="elementor elementor-%1$d" data-elementor-type="popup" data-elementor-id="%1$d">%2$s</div>',
-                $popup_id,
-                $popup_content
-            );
-        }
-        unset( $GLOBALS['suz_current_popup_speaker_id'] );
-    }
-
-    if ( session_id() ) {
-        session_write_close();
-    }
-
-    wp_send_json_success(
-        [
-            'speaker_id'   => $speaker_id,
-            'element_html' => $element_html,
-            'fallback_html' => $fallback_html,
-        ]
-    );
-}
-
-add_action( 'elementor/query/speaker_card', function( $query ) {
-    $speaker_id = 0;
-
-    if ( isset( $GLOBALS['suz_current_popup_speaker_id'] ) ) {
-        $speaker_id = absint( $GLOBALS['suz_current_popup_speaker_id'] );
-    }
-
-    if ( ! $speaker_id ) {
-        suz_start_session();
-        $speaker_id = isset( $_SESSION['suz_speaker_id'] ) ? absint( $_SESSION['suz_speaker_id'] ) : 0;
-    }
-
-    if ( $speaker_id ) {
-        $query->set( 'post_type', 'suz_speaker' );
-        $query->set( 'post__in', array( $speaker_id ) );
-        $query->set( 'posts_per_page', 1 );
-        $query->set( 'orderby', 'post__in' );
-        $query->set( 'ignore_sticky_posts', true );
-    } else {
-        $query->set( 'post__in', array( 0 ) );
-    }
-} );
