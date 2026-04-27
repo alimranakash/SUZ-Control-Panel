@@ -258,7 +258,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
 
                 let isLoading = false;
 
-                jQuery(document).on('click', '.suz-popup-btn', function(e) {
+                jQuery(document).on('mouseenter', '.suz-popup-btn', function(e) {
                     e.preventDefault();
 
                     if (isLoading) return;
