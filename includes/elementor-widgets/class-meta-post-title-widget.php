@@ -111,6 +111,17 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $popup_template_id = isset( $settings['popup_template_id'] ) ? absint( $settings['popup_template_id'] ) : 0;
 
         $users = get_post_meta( $post_id, $key, true );
+        $suz_lsc = get_post_meta( $post_id, 'suz_lecture_speaker_company', true );
+        $suz_lsr = get_post_meta( $post_id, 'suz_lecture_speaker_role', true );
+        $suz_lsp = get_post_meta( $post_id, 'suz_lecture_speaker_photo', true );
+        $suz_lscl = get_post_meta( $post_id, 'suz_lecture_speaker_company_logo', true );
+        $suz_lsb = get_post_meta( $post_id, 'suz_lecture_speaker_bio', true );
+        $has_fallback_data = ( '' !== trim( (string) $suz_lsc ) ) ||
+            ( '' !== trim( (string) $suz_lsr ) ) ||
+            ( '' !== trim( (string) $suz_lsp ) ) ||
+            ( '' !== trim( (string) $suz_lscl ) ) ||
+            ( '' !== trim( (string) $suz_lsb ) );
+        $should_print_popup_script = false;
 
         if ( ! empty( $users ) ) {
             // Convert single value to array for consistent rendering.
@@ -135,36 +146,45 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                     }
                 }
 
-                echo implode( ', ', $items );
+                if ( ! empty( $items ) ) {
+                    echo implode( ', ', $items );
+                    $should_print_popup_script = true;
+                } elseif ( $has_fallback_data && $popup_id ) {
+                    $fallback_label = $suz_lsc ? $suz_lsc : __( 'Speaker details', 'suz-control-panel' );
+                    echo '<a href="#"
+                        class="suz-popup-btn meta-value"
+                        data-post_id="' . esc_attr( $post_id ) . '"
+                        data-popup_id="' . esc_attr( $popup_id ) . '"
+                        data-popup_template_id="' . esc_attr( $popup_template_id ) . '"
+                        data-is_fallback="1">'
+                        . esc_html( $fallback_label ) .
+                    '</a>';
+                    $should_print_popup_script = true;
+                }
             }
 
             echo '</div>';
+        } else {
+            if ( $has_fallback_data && $popup_id ) {
+                $fallback_label = $suz_lsc ? $suz_lsc : __( 'Speaker details', 'suz-control-panel' );
+                echo '<a href="#"
+                    class="suz-popup-btn meta-value"
+                    data-post_id="' . esc_attr( $post_id ) . '"
+                    data-popup_id="' . esc_attr( $popup_id ) . '"
+                    data-popup_template_id="' . esc_attr( $popup_template_id ) . '"
+                    data-is_fallback="1">'
+                    . esc_html( $fallback_label ) .
+                '</a>';
+                $should_print_popup_script = true;
+            } else {
+                echo '<span class="meta-value">' . esc_html( $suz_lsc ) . '</span>';
+            }
+        }
+
+        if ( $should_print_popup_script ) {
             ?>
             <script>
-                // jQuery(document).on('click', '.suz-popup-btn', function(e) {
-                //     e.preventDefault();
-                //     var post_id = jQuery(this).data('post_id');
-
-                //     jQuery.ajax({
-                //         url: '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>', // frontend হলে localize করতে হবে
-                //         type: 'POST',
-                //         data: {
-                //             action: 'load_popup_content',
-                //             post_id: post_id
-                //         },
-                //         success: function(response) {
-
-                //             elementorProFrontend.modules.popup.showPopup({ id: 9094 });
-
-                //             jQuery(document).one('elementor/popup/show', function() {
-                //                 jQuery('#popup-content').html(response);
-                //             });
-
-                //         }
-                //     });
-                // });
-
-                const suzPopupLoaderStyleId = 'suz-popup-loader-style';
+                var suzPopupLoaderStyleId = 'suz-popup-loader-style';
 
                 if (!document.getElementById(suzPopupLoaderStyleId)) {
                     const loaderStyle = document.createElement('style');
@@ -257,53 +277,51 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                     `;
                 }
 
-                let isLoading = false;
+                if (!window.suzPopupHandlerBound) {
+                    window.suzPopupHandlerBound = true;
+                    window.suzPopupIsLoading = false;
 
-                jQuery(document).on('mouseenter', '.suz-popup-btn', function(e) {
-                    e.preventDefault();
+                    jQuery(document).on('mouseenter', '.suz-popup-btn', function(e) {
+                        e.preventDefault();
 
-                    if (isLoading) return;
+                        if (window.suzPopupIsLoading) return;
 
-                    isLoading = true;
+                        window.suzPopupIsLoading = true;
 
-                    var post_id = parseInt(jQuery(this).data('post_id'), 10) || 0;
-                    var popup_id = parseInt(jQuery(this).data('popup_id'), 10) || 0;
-                    var popup_template_id = parseInt(jQuery(this).data('popup_template_id'), 10) || 0;
+                        var post_id = parseInt(jQuery(this).data('post_id'), 10) || 0;
+                        var popup_id = parseInt(jQuery(this).data('popup_id'), 10) || 0;
+                        var popup_template_id = parseInt(jQuery(this).data('popup_template_id'), 10) || 0;
+                        var is_fallback = parseInt(jQuery(this).data('is_fallback'), 10) === 1 ? 1 : 0;
 
-                    if (!post_id || !popup_id || !popup_template_id) {
-                        isLoading = false;
-                        return;
-                    }
-                    
-                    elementorProFrontend.modules.popup.showPopup({ id: popup_id });
-
-                    jQuery('#popup-content').html(getPopupLoaderMarkup());
-
-                    jQuery.ajax({
-                        url: '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>',
-                        type: 'POST',
-                        data: {
-                            action: 'load_popup_content',
-                            post_id: post_id,
-                            popup_template_id: popup_template_id
-                        },
-                        success: function(response) {
-                            jQuery('#popup-content').html(response);
-                        },
-                        complete: function() {
-                            isLoading = false;
+                        if (!post_id || !popup_id || (!is_fallback && !popup_template_id)) {
+                            window.suzPopupIsLoading = false;
+                            return;
                         }
+
+                        elementorProFrontend.modules.popup.showPopup({ id: popup_id });
+
+                        jQuery('#popup-content').html(getPopupLoaderMarkup());
+
+                        jQuery.ajax({
+                            url: '<?php echo esc_js( admin_url( 'admin-ajax.php' ) ); ?>',
+                            type: 'POST',
+                            data: {
+                                action: 'load_popup_content',
+                                post_id: post_id,
+                                popup_template_id: popup_template_id,
+                                is_fallback: is_fallback
+                            },
+                            success: function(response) {
+                                jQuery('#popup-content').html(response);
+                            },
+                            complete: function() {
+                                window.suzPopupIsLoading = false;
+                            }
+                        });
                     });
-                });
+                }
             </script>
             <?php
-        } else {
-            $suz_lsc = get_post_meta( $post_id, 'suz_lecture_speaker_company', true );
-            $suz_lsr = get_post_meta( $post_id, 'suz_lecture_speaker_role', true );
-            $suz_lsp = get_post_meta( $post_id, 'suz_lecture_speaker_photo', true );
-            $suz_lscl = get_post_meta( $post_id, 'suz_lecture_speaker_company_logo', true );
-            $suz_lsb = get_post_meta( $post_id, 'suz_lecture_speaker_bio', true );
-            echo '<span class="meta-value">'. $suz_lsc .'</span>';
         }
     }
 }
