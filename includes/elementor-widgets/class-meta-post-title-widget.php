@@ -104,12 +104,13 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        $settings = $this->get_settings_for_display();
-        $key      = $settings['key'];
-        $popup_id = isset( $settings['popup_id'] ) ? absint( $settings['popup_id'] ) : 0;
+        $settings   = $this->get_settings_for_display();
+        $key        = $settings['key'];
+        $post_id    = get_the_ID();
+        $popup_id   = isset( $settings['popup_id'] ) ? absint( $settings['popup_id'] ) : 0;
         $popup_template_id = isset( $settings['popup_template_id'] ) ? absint( $settings['popup_template_id'] ) : 0;
 
-        $users = get_post_meta( get_the_ID(), $key, true );
+        $users = get_post_meta( $post_id, $key, true );
 
         if ( ! empty( $users ) ) {
             // Convert single value to array for consistent rendering.
@@ -297,7 +298,12 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
             </script>
             <?php
         } else {
-            echo '<span class="meta-value">No data found</span>';
+            $suz_lsc = get_post_meta( $post_id, 'suz_lecture_speaker_company', true );
+            $suz_lsr = get_post_meta( $post_id, 'suz_lecture_speaker_role', true );
+            $suz_lsp = get_post_meta( $post_id, 'suz_lecture_speaker_photo', true );
+            $suz_lscl = get_post_meta( $post_id, 'suz_lecture_speaker_company_logo', true );
+            $suz_lsb = get_post_meta( $post_id, 'suz_lecture_speaker_bio', true );
+            echo '<span class="meta-value">'. $suz_lsc .'</span>';
         }
     }
 }

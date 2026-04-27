@@ -58,7 +58,6 @@ if ( file_exists( $suz_konferencie_file ) ) {
 if ( is_admin() ) {
     require_once plugin_dir_path( __FILE__ ) . 'admin/admin-notifications.php';
     require_once plugin_dir_path( __FILE__ ) . 'admin/admin-columns.php'; // Task 7: Admin List Columns + Filtering
-    require_once plugin_dir_path( __FILE__ ) . 'admin/lecture-autoprefill.php'; // Auto-prefill for new suz_lecture
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'import-users-email-passwords.php';
