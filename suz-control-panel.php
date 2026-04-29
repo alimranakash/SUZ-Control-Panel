@@ -3,7 +3,7 @@
  * Plugin Name: SUZ Control Panel
  * Plugin URI:  https://magicmedia.sk/ 
  * Description: Central dashboard to manage SUZ-related plugins & features.
- * Version:     1.2.6
+ * Version:     1.2.7
  * Author:      Magicmedia
  * Text Domain: suz-control-panel
  * Domain Path: /languages
@@ -181,6 +181,41 @@ add_action( 'elementor/query/event_lectures', function( $query ) {
     } else {
         $query->set( 'post__in', array(0) );
     }
+
+});
+
+add_action( 'elementor/query/upcoming_events', function( $query ) {
+
+    $current_datetime = current_time( 'Y-m-d H:i:s' ); // WP timezone অনুযায়ী
+
+    $meta_query = array(
+        'relation' => 'AND',
+
+        // Start Date <= Now
+        array(
+            'key'     => 'suz_start_date',
+            'value'   => $current_datetime,
+            'compare' => '<=',
+            'type'    => 'DATETIME',
+        ),
+
+        // End Date >= Now
+        array(
+            'key'     => 'suz_end_date',
+            'value'   => $current_datetime,
+            'compare' => '>=',
+            'type'    => 'DATETIME',
+        ),
+    );
+
+    $query->set( 'post_type', 'suz_event' );
+    $query->set( 'post_status', 'publish' );
+    $query->set( 'meta_query', $meta_query );
+
+    // optional: upcoming order (earliest first)
+    $query->set( 'orderby', 'meta_value' );
+    $query->set( 'meta_key', 'suz_start_date' );
+    $query->set( 'order', 'ASC' );
 
 });
 
