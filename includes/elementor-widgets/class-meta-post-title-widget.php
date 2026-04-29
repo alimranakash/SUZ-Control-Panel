@@ -110,12 +110,12 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $popup_id   = isset( $settings['popup_id'] ) ? absint( $settings['popup_id'] ) : 0;
         $popup_template_id = isset( $settings['popup_template_id'] ) ? absint( $settings['popup_template_id'] ) : 0;
 
-        $users = get_post_meta( $post_id, $key, true );
-        $suz_lsc = get_post_meta( $post_id, 'suz_lecture_speaker_company', true );
-        $suz_lsr = get_post_meta( $post_id, 'suz_lecture_speaker_role', true );
-        $suz_lsp = get_post_meta( $post_id, 'suz_lecture_speaker_photo', true );
-        $suz_lscl = get_post_meta( $post_id, 'suz_lecture_speaker_company_logo', true );
-        $suz_lsb = get_post_meta( $post_id, 'suz_lecture_speaker_bio', true );
+        $users      = get_post_meta( $post_id, $key, true );
+        $suz_lsc    = get_post_meta( $post_id, 'suz_lecture_speaker_company', true );
+        $suz_lsr    = get_post_meta( $post_id, 'suz_lecture_speaker_role', true );
+        $suz_lsp    = get_post_meta( $post_id, 'suz_lecture_speaker_photo', true );
+        $suz_lscl   = get_post_meta( $post_id, 'suz_lecture_speaker_company_logo', true );
+        $suz_lsb    = get_post_meta( $post_id, 'suz_lecture_speaker_bio', true );
         $has_fallback_data = ( '' !== trim( (string) $suz_lsc ) ) ||
             ( '' !== trim( (string) $suz_lsr ) ) ||
             ( '' !== trim( (string) $suz_lsp ) ) ||

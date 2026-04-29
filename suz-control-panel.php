@@ -3,7 +3,7 @@
  * Plugin Name: SUZ Control Panel
  * Plugin URI:  https://magicmedia.sk/ 
  * Description: Central dashboard to manage SUZ-related plugins & features.
- * Version:     1.2.5
+ * Version:     1.2.6
  * Author:      Magicmedia
  * Text Domain: suz-control-panel
  * Domain Path: /languages
@@ -423,7 +423,7 @@ function suz_prefill_lecture_meta() {
             const tags = <?php echo json_encode($tags); ?>;
             const days = <?php echo json_encode($days); ?>;
 
-            function setTaxonomies(){
+            function setTaxonomies() {
 
                 if (typeof wp === 'undefined' || !wp.data) return;
 
@@ -465,6 +465,7 @@ function suz_prefill_time_to($value, $post_id, $field) {
     if (!isset($_GET['post_type']) || $_GET['post_type'] !== 'suz_lecture') return $value;
 
     $last_post = suz_get_last_lecture_post();
+
     if (!$last_post) return $value;
 
     $last_time_from = get_post_meta($last_post->ID, 'suz_time_from', true);
@@ -484,4 +485,49 @@ function suz_prefill_lecture_duration($value, $post_id, $field) {
     if ( !$last_post ) return $value;
 
     return get_post_meta($last_post->ID, 'suz_lecture_duration', true);
+}
+
+if ( ! function_exists( 'suz_meta_shortcode' ) ) {
+    function suz_meta_shortcode( $atts ) {
+        $atts = shortcode_atts( array(
+            'key'     => '',
+            'post_id' => get_the_ID(),
+        ), $atts );
+
+        if ( empty( $atts['key'] ) ) {
+            return '';
+        }
+
+        $value = get_post_meta( $atts['post_id'], $atts['key'], true );
+
+        if ( empty( $value ) ) {
+            return '';
+        }
+
+        if ( is_array( $value ) ) {
+            $output = array();
+
+            foreach ( $value as $val ) {
+                if ( is_numeric( $val ) ) {
+                    $title = get_the_title( $val );
+                    $output[] = $title ? $title : $val;
+                } else {
+                    $output[] = $val;
+                }
+            }
+
+            return implode( ', ', $output );
+        }
+
+        if ( is_numeric( $value ) ) {
+            $title = get_the_title( $value );
+            return $title ? $title : $value;
+        }
+
+        return esc_html( $value );
+    }
+}
+
+if ( ! shortcode_exists( 'suz_meta' ) ) {
+    add_shortcode( 'suz_meta', 'suz_meta_shortcode' );
 }
