@@ -3,7 +3,7 @@
  * Plugin Name: SUZ Control Panel
  * Plugin URI:  https://magicmedia.sk/ 
  * Description: Central dashboard to manage SUZ-related plugins & features.
- * Version:     1.3.2
+ * Version:     1.3.3
  * Author:      Magicmedia
  * Text Domain: suz-control-panel
  * Domain Path: /languages
@@ -328,6 +328,12 @@ function suz_popup_image_url_from_meta( $post_id, $meta_key, $size = 'large' ) {
         if ( ! empty( $image['url'] ) ) {
             return esc_url_raw( $image['url'] );
         }
+        if ( ! empty( $image['sizes'][ $size ] ) ) {
+            return esc_url_raw( $image['sizes'][ $size ] );
+        }
+        if ( ! empty( $image['sizes']['full'] ) ) {
+            return esc_url_raw( $image['sizes']['full'] );
+        }
         if ( ! empty( $image['ID'] ) ) {
             $url = wp_get_attachment_image_url( absint( $image['ID'] ), $size );
             return $url ? $url : '';
@@ -339,10 +345,59 @@ function suz_popup_image_url_from_meta( $post_id, $meta_key, $size = 'large' ) {
     }
 
     if ( is_string( $image ) ) {
+        $image = trim( $image );
+
+        if ( '' === $image ) {
+            return '';
+        }
+
         if ( is_numeric( $image ) ) {
             $url = wp_get_attachment_image_url( absint( $image ), $size );
             return $url ? $url : '';
         }
+
+        $maybe_unserialized = maybe_unserialize( $image );
+        if ( is_array( $maybe_unserialized ) ) {
+            if ( ! empty( $maybe_unserialized['url'] ) ) {
+                return esc_url_raw( $maybe_unserialized['url'] );
+            }
+            if ( ! empty( $maybe_unserialized['sizes'][ $size ] ) ) {
+                return esc_url_raw( $maybe_unserialized['sizes'][ $size ] );
+            }
+            if ( ! empty( $maybe_unserialized['sizes']['full'] ) ) {
+                return esc_url_raw( $maybe_unserialized['sizes']['full'] );
+            }
+            if ( ! empty( $maybe_unserialized['ID'] ) ) {
+                $url = wp_get_attachment_image_url( absint( $maybe_unserialized['ID'] ), $size );
+                return $url ? $url : '';
+            }
+            if ( ! empty( $maybe_unserialized['id'] ) ) {
+                $url = wp_get_attachment_image_url( absint( $maybe_unserialized['id'] ), $size );
+                return $url ? $url : '';
+            }
+        }
+
+        $decoded = json_decode( $image, true );
+        if ( is_array( $decoded ) ) {
+            if ( ! empty( $decoded['url'] ) ) {
+                return esc_url_raw( $decoded['url'] );
+            }
+            if ( ! empty( $decoded['sizes'][ $size ] ) ) {
+                return esc_url_raw( $decoded['sizes'][ $size ] );
+            }
+            if ( ! empty( $decoded['sizes']['full'] ) ) {
+                return esc_url_raw( $decoded['sizes']['full'] );
+            }
+            if ( ! empty( $decoded['ID'] ) ) {
+                $url = wp_get_attachment_image_url( absint( $decoded['ID'] ), $size );
+                return $url ? $url : '';
+            }
+            if ( ! empty( $decoded['id'] ) ) {
+                $url = wp_get_attachment_image_url( absint( $decoded['id'] ), $size );
+                return $url ? $url : '';
+            }
+        }
+
         return esc_url_raw( $image );
     }
 
@@ -350,11 +405,11 @@ function suz_popup_image_url_from_meta( $post_id, $meta_key, $size = 'large' ) {
 }
 
 function suz_render_fallback_popup_content( $post_id ) {
-    $company = trim( (string) get_post_meta( $post_id, 'suz_lecture_speaker_company', true ) );
-    $role = trim( (string) get_post_meta( $post_id, 'suz_lecture_speaker_role', true ) );
-    $bio = trim( (string) get_post_meta( $post_id, 'suz_lecture_speaker_bio', true ) );
-    $speaker_photo = suz_popup_image_url_from_meta( $post_id, 'suz_lecture_speaker_photo', 'large' );
-    $company_logo = suz_popup_image_url_from_meta( $post_id, 'suz_lecture_speaker_company_logo', 'medium' );
+    $company        = trim( (string) get_post_meta( $post_id, 'suz_lecture_speaker_company', true ) );
+    $role           = trim( (string) get_post_meta( $post_id, 'suz_lecture_speaker_role', true ) );
+    $bio            = trim( (string) get_post_meta( $post_id, 'suz_lecture_speaker_bio', true ) );
+    $speaker_photo  = suz_popup_image_url_from_meta( $post_id, 'suz_lecture_speaker_photo', 'large' );
+    $company_logo   = suz_popup_image_url_from_meta( $post_id, 'suz_lecture_company_logo', 'medium' );
 
     if ( '' === $company && '' === $role && '' === $bio && '' === $speaker_photo && '' === $company_logo ) {
         return '<div class="suz-fallback-speaker-popup"><p class="suz-fallback-speaker-popup__empty">' .
