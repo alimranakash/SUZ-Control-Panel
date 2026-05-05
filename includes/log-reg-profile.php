@@ -13,16 +13,16 @@ function suz_redirect_after_login_based_on_profile( $redirect_to, $requested_red
 
     if ( in_array( 'administrator', (array) $user->roles, true ) ) {
         // return $redirect_to;
-        return site_url( '/' . esc_html__( 'wp-admin', 'suz' ) . '/' );
+        return site_url( '/' . esc_html__( 'wp-admin', 'suz-control-panel' ) . '/' );
     }
 
     $first_name = get_user_meta( $user->ID, 'first_name', true );
 
     if ( empty( $first_name ) ) {
-        return site_url( '/' . esc_html__( 'profile-completion', 'suz' ) . '/' );
+        return site_url( '/' . esc_html__( 'profile-completion', 'suz-control-panel' ) . '/' );
     }
 
-    return site_url( '/' . esc_html__( 'moj-ucet', 'suz' ) . '/' );
+    return site_url( '/' . esc_html__( 'moj-ucet', 'suz-control-panel' ) . '/' );
 }
 add_filter( 'login_redirect', 'suz_redirect_after_login_based_on_profile', 10, 3 );
 
@@ -48,13 +48,13 @@ function suz_redirect_logged_in_users_from_auth_pages() {
 
     $current_path      = trim( $_SERVER['REQUEST_URI'], '/' );
     $restricted_pages  = array(
-        esc_html__( 'login', 'suz' ),
-        esc_html__( 'registration', 'suz' ),
-        esc_html__( 'profile-completion', 'suz' )
+        esc_html__( 'login', 'suz-control-panel' ),
+        esc_html__( 'registration', 'suz-control-panel' ),
+        esc_html__( 'profile-completion', 'suz-control-panel' )
     );
 
     if ( in_array( $current_path, $restricted_pages ) ) {
-        wp_safe_redirect( site_url( '/' . esc_html__( 'dashboard', 'suz' ) . '/' ) );
+        wp_safe_redirect( site_url( '/' . esc_html__( 'dashboard', 'suz-control-panel' ) . '/' ) );
         exit;
     }
 }
@@ -66,7 +66,7 @@ add_action( 'template_redirect', 'suz_redirect_logged_in_users_from_auth_pages' 
 function suz_redirect_on_login_failure( $username ) {
     $referrer = wp_get_referer();
 
-    if ( $referrer && strpos( $referrer, '/' . esc_html__( 'prihlasenie', 'suz' ) . '/' ) !== false ) {
+    if ( $referrer && strpos( $referrer, '/' . esc_html__( 'prihlasenie', 'suz-control-panel' ) . '/' ) !== false ) {
         wp_redirect( add_query_arg( 'login', 'failed', $referrer ) );
         exit;
     }
@@ -99,7 +99,7 @@ if ( ! function_exists( 'suz_show_login_error_notice' ) ) {
     function suz_show_login_error_notice() {
         if ( isset( $_GET['login'] ) && $_GET['login'] === 'failed' ) {
             echo '<div class="suz-login-error" style="color: red; font-weight: bold; margin-bottom: 15px;">';
-            echo esc_html__( 'Invalid username or password. Please try again.', 'suz' );
+            echo esc_html__( 'Invalid username or password. Please try again.', 'suz-control-panel' );
             echo '</div>';
         }
     }
@@ -113,7 +113,7 @@ if ( ! function_exists( 'suz_show_login_error_notice_on_custom_page' ) ) {
     function suz_show_login_error_notice_on_custom_page() {
         if ( isset( $_GET['login'] ) && $_GET['login'] === 'failed' ) {
             echo '<div class="suz-login-error" style="color: red; font-weight: bold; margin-bottom: 15px;">';
-            echo esc_html__( 'Invalid username or password. Please try again.', 'suz' );
+            echo esc_html__( 'Invalid username or password. Please try again.', 'suz-control-panel' );
             echo '</div>';
         }
     }
@@ -325,3 +325,4 @@ add_action('wp_head', function () {
 }, 1);
 
 // code added for account activation message by hafij end
+

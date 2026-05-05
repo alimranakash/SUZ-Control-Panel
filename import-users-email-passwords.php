@@ -190,13 +190,23 @@ function suz_do_import(): array {
     }
 
     // --- One email to the user only ---
-    $subject = 'Vaše prihlasovacie údaje – Spoločnosť údržby zariadení - SUZ';
+    $subject = __( 'Vaše prihlasovacie údaje - Spoločnosť údržby zariadení - SUZ', 'suz-control-panel' );
 
     $site_host  = preg_replace('/^www\./', '', parse_url(home_url(), PHP_URL_HOST) ?: '');
     $user_email = esc_html($email);
     $user_pass  = esc_html($password);
     $site_title = esc_html($site_name);
     $site_host_safe = esc_html($site_host);
+    $email_greeting = esc_html__( 'Dobrý deň,', 'suz-control-panel' );
+    $email_intro_1 = esc_html__( 'Tento e-mail obsahuje Vaše prihlasovacie údaje pre prístup na našu webovú stránku.', 'suz-control-panel' );
+    $email_intro_2 = esc_html__( 'Prihláste sa pomocou uvedených údajov nižšie.', 'suz-control-panel' );
+    $email_help_1 = esc_html__( 'Ak by ste narazili na akýkoľvek problém s prihlásením alebo prístupom,', 'suz-control-panel' );
+    $email_help_2 = esc_html__( 'neváhajte nás kontaktovať - radi Vám pomôžeme.', 'suz-control-panel' );
+    $email_credentials = esc_html__( 'Vaše prístupové údaje:', 'suz-control-panel' );
+    $email_username = esc_html__( 'Prihlasovacie meno:', 'suz-control-panel' );
+    $email_password = esc_html__( 'Heslo:', 'suz-control-panel' );
+    $email_security = esc_html__( 'Po prihlásení odporúčame heslo zmeniť kvôli bezpečnosti.', 'suz-control-panel' );
+    $email_sent_from = esc_html__( 'Odoslané z', 'suz-control-panel' );
 
     $body = <<<HTML
         <!doctype html>
@@ -209,36 +219,36 @@ function suz_do_import(): array {
                 <tr>
                     <td style="padding:32px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif;color:#111827;line-height:1.55;">
                     
-                    <p style="margin:0 0 16px 0;font-size:14px;">Dobrý deň,</p>
+                    <p style="margin:0 0 16px 0;font-size:14px;">{$email_greeting}</p>
 
                     <p style="margin:0 0 16px 0;font-size:14px;">
-                        Tento e-mail obsahuje Vaše prihlasovacie údaje pre prístup na našu webovú stránku.
-                        Prihláste sa pomocou uvedených údajov nižšie.
+                        {$email_intro_1}
+                        {$email_intro_2}
                     </p>
 
                     <p style="margin:0 0 16px 0;font-size:14px;">
-                        Ak by ste narazili na akýkoľvek problém s prihlásením alebo prístupom,
-                        neváhajte nás kontaktovať – radi Vám pomôžeme.
+                        {$email_help_1}
+                        {$email_help_2}
                     </p>
 
-                    <p style="font-size:14px;margin:20px 0 8px 0;"><strong>Vaše prístupové údaje:</strong></p>
+                    <p style="font-size:14px;margin:20px 0 8px 0;"><strong>{$email_credentials}</strong></p>
                     <p style="margin:0 0 6px 0;font-size:15px;">
-                        <strong>Prihlasovacie meno:</strong>
+                        <strong>{$email_username}</strong>
                         <a href="mailto:{$user_email}" style="color:#ea580c;text-decoration:underline;">{$user_email}</a>
                     </p>
                     <p style="margin:0 0 20px 0;font-size:15px;">
-                        <strong>Heslo:</strong> {$user_pass}
+                        <strong>{$email_password}</strong> {$user_pass}
                     </p>
 
                     <p style="margin:0 0 16px 0;font-size:14px;">
-                        Po prihlásení odporúčame heslo zmeniť kvôli bezpečnosti.
+                        {$email_security}
                     </p>
 
                     <hr style="border:none;height:1px;background:#e5e7eb;margin:20px 0 10px 0;" />
 
                     <p style="margin:0;text-align:center;color:#9ca3af;font-size:13px;">
-                        Odoslané z <a href="{home_url()}" style="color:#9ca3af;text-decoration:underline;">{$site_title}</a>
-                        – <a href="https://{$site_host_safe}" style="color:#9ca3af;text-decoration:underline;">{$site_host_safe}</a>
+                        {$email_sent_from} <a href="{home_url()}" style="color:#9ca3af;text-decoration:underline;">{$site_title}</a>
+                        - <a href="https://{$site_host_safe}" style="color:#9ca3af;text-decoration:underline;">{$site_host_safe}</a>
                     </p>
                     </td>
                 </tr>
@@ -249,7 +259,6 @@ function suz_do_import(): array {
         </body>
         </html>
     HTML;
-
     $sent = wp_mail($email, $subject, $body);
     // $sent = true;
 

@@ -781,7 +781,7 @@ function suz_validate_discount_quota_on_checkout() {
         $map = suz_resolve_product_to_booking_ticket($product->get_id());
 
         if ( $map['index'] === 1 && suz_has_company_used_discount( $ico, $map['booking_id'], $user_email, $quota, $user_role ) ) {
-            wc_add_notice( sprintf( __( 'Your company ICO %s or your role/email has already used the discounted ticket quota.', 'suz' ), esc_html($ico) ), 'error' );
+            wc_add_notice( sprintf( __( 'Your company ICO %s or your role/email has already used the discounted ticket quota.', 'suz-control-panel' ), esc_html($ico) ), 'error' );
         }
     }
 }

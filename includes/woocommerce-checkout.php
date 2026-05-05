@@ -7,7 +7,7 @@ add_filter( 'woocommerce_checkout_fields', 'suz_add_company_fields_to_checkout' 
 function suz_add_company_fields_to_checkout( $fields ) {
     // Company Name field (custom)
     $fields['billing']['billing_company'] = array(
-        'label'    => __( 'Company Name', 'suz' ),
+        'label'    => __( 'Company Name', 'suz-control-panel' ),
         'required' => false,
         'class'    => array( 'form-row-wide' ),
         'clear'    => true,
@@ -16,7 +16,7 @@ function suz_add_company_fields_to_checkout( $fields ) {
 
     // ICO field
     $fields['billing']['billing_ico'] = array(
-        'label'    => __( 'Company ICO', 'suz' ),
+        'label'    => __( 'Company ICO', 'suz-control-panel' ),
         'required' => false,
         'class'    => array( 'form-row-wide' ),
         'clear'    => true,
@@ -25,7 +25,7 @@ function suz_add_company_fields_to_checkout( $fields ) {
 
     // VAT ID field
     $fields['billing']['billing_vat_id'] = array(
-        'label'    => __( 'VAT ID', 'suz' ),
+        'label'    => __( 'VAT ID', 'suz-control-panel' ),
         'required' => false,
         'class'    => array( 'form-row-wide' ),
         'clear'    => true,
@@ -34,7 +34,7 @@ function suz_add_company_fields_to_checkout( $fields ) {
 
     // Tax ID field
     $fields['billing']['billing_tax_id'] = array(
-        'label'    => __( 'Tax ID', 'suz' ),
+        'label'    => __( 'Tax ID', 'suz-control-panel' ),
         'required' => false,
         'class'    => array( 'form-row-wide' ),
         'clear'    => true,
@@ -292,10 +292,10 @@ add_action('woocommerce_set_additional_field_value', function($key,$value,$group
 
 // Classic checkout/Edit Address fallback
 // add_filter('woocommerce_billing_fields', function($f){
-//     $f['billing_company'] = ['label'=>__('Company Name','suz'),'required'=>false,'class'=>['form-row-wide'],'priority'=>115];
-//     $f['billing_ico']     = ['label'=>__('Company ICO','suz'),'required'=>false,'class'=>['form-row-wide'],'priority'=>120];
-//     $f['billing_vat_id']  = ['label'=>__('VAT ID','suz'),'required'=>false,'class'=>['form-row-wide'],'priority'=>125];
-//     $f['billing_tax_id']  = ['label'=>__('Tax ID','suz'),'required'=>false,'class'=>['form-row-wide'],'priority'=>130];
+//     $f['billing_company'] = ['label'=>__('Company Name','suz-control-panel'),'required'=>false,'class'=>['form-row-wide'],'priority'=>115];
+//     $f['billing_ico']     = ['label'=>__('Company ICO','suz-control-panel'),'required'=>false,'class'=>['form-row-wide'],'priority'=>120];
+//     $f['billing_vat_id']  = ['label'=>__('VAT ID','suz-control-panel'),'required'=>false,'class'=>['form-row-wide'],'priority'=>125];
+//     $f['billing_tax_id']  = ['label'=>__('Tax ID','suz-control-panel'),'required'=>false,'class'=>['form-row-wide'],'priority'=>130];
 //     return $f;
 // },10);
 
@@ -306,3 +306,4 @@ add_action('woocommerce_checkout_update_order_meta', function($order_id){
         }
     }
 },10);
+

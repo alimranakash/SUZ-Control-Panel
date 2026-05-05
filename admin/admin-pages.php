@@ -331,7 +331,7 @@ function suz_panel_render_ico_verification_page() {
                 $prev_url = add_query_arg(['paged' => $prev, 's' => $search_query, 'page' => 'suz-ico-verification-tracker']);
                 $next_url = add_query_arg(['paged' => $next, 's' => $search_query, 'page' => 'suz-ico-verification-tracker']);
 
-                echo '<a class="prev-page" href="'.esc_url($prev_url).'">&laquo; Previous</a> ';
+                echo '<a class="prev-page" href="' . esc_url( $prev_url ) . '">&laquo; ' . esc_html__( 'Previous', 'suz-control-panel' ) . '</a> ';
 
                 for ($i = 1; $i <= $total_pages; $i++) {
                     $class = ($i == $paged) ? 'current' : '';
@@ -339,7 +339,7 @@ function suz_panel_render_ico_verification_page() {
                     echo '<a class="page-numbers '.$class.'" href="'.esc_url($url).'">'. $i .'</a> ';
                 }
 
-                echo '<a class="next-page" href="'.esc_url($next_url).'">Next &raquo;</a>';
+                echo '<a class="next-page" href="' . esc_url( $next_url ) . '">' . esc_html__( 'Next', 'suz-control-panel' ) . ' &raquo;</a>';
                 ?>
             </div></div>
         <?php endif; ?>

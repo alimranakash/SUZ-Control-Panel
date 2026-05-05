@@ -562,7 +562,7 @@ function suz_add_custom_checkboxes($user) {
         'Pot_Prednasajuci'   => 'Pot_Prednasajuci'
     ];
     ?>
-    <h2>Potential Tags</h2>
+    <h2><?php esc_html_e( 'Potential Tags', 'suz-control-panel' ); ?></h2>
     <table class="form-table" id="suz-potential-tags-table">
         <tbody>
             <?php foreach ($options as $key => $label) : ?>

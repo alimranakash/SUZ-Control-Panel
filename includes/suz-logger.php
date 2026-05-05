@@ -4,7 +4,7 @@
  */
 function suz_log_action( $message, $user_id = null ) {
     $time = current_time( 'mysql' );
-    $user = $user_id ? sprintf( __( 'User #%d', 'suz' ), $user_id ) : __( 'System', 'suz' );
+    $user = $user_id ? sprintf( __( 'User #%d', 'suz-control-panel' ), $user_id ) : __( 'System', 'suz-control-panel' );
     $entry = "[{$time}] {$user}: {$message}\n";
 
     $log_dir  = plugin_dir_path( __FILE__ ) . '../logs/';
@@ -37,8 +37,8 @@ function suz_clear_log() {
  * Hook to log user role changes
  */
 add_action( 'set_user_role', function( $user_id, $role, $old_roles ) {
-    $old_role = is_array( $old_roles ) && ! empty( $old_roles ) ? implode( ',', $old_roles ) : __( 'none', 'suz' );
-    $message = sprintf( __( 'User role changed from [%s] to [%s]', 'suz' ), $old_role, $role );
+    $old_role = is_array( $old_roles ) && ! empty( $old_roles ) ? implode( ',', $old_roles ) : __( 'none', 'suz-control-panel' );
+    $message = sprintf( __( 'User role changed from [%s] to [%s]', 'suz-control-panel' ), $old_role, $role );
     suz_log_action( $message, $user_id );
 }, 10, 3 );
 
@@ -46,7 +46,7 @@ add_action( 'set_user_role', function( $user_id, $role, $old_roles ) {
  * Hook to log user profile updates
  */
 add_action( 'profile_update', function( $user_id, $old_user_data ) {
-    $message = __( 'User profile updated.', 'suz' );
+    $message = __( 'User profile updated.', 'suz-control-panel' );
     suz_log_action( $message, $user_id );
 }, 10, 2 );
 
@@ -54,6 +54,6 @@ add_action( 'profile_update', function( $user_id, $old_user_data ) {
  * Hook to log new user registration
  */
 add_action( 'user_register', function( $user_id ) {
-    $message = __( 'New user registered.', 'suz' );
+    $message = __( 'New user registered.', 'suz-control-panel' );
     suz_log_action( $message, $user_id );
 });

@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function suz_register_custom_roles() {
     add_role(
         'suz_member',
-        __( 'SUZ Member', 'suz' ),
+        __( 'SUZ Member', 'suz-control-panel' ),
         array(
             'read' => true,
             // Add more capabilities as needed
@@ -19,7 +19,7 @@ function suz_register_custom_roles() {
 
     add_role(
         'suz_non_member',
-        __( 'SUZ Non-Member', 'suz' ),
+        __( 'SUZ Non-Member', 'suz-control-panel' ),
         array(
             'read' => true,
         )
@@ -27,7 +27,7 @@ function suz_register_custom_roles() {
 
     add_role(
         'suz_representative',
-        __( 'SUZ Representative', 'suz' ),
+        __( 'SUZ Representative', 'suz-control-panel' ),
         array(
             'read' => true,
             // Extra capabilities for representative if any
@@ -36,7 +36,7 @@ function suz_register_custom_roles() {
 
     add_role(
         'vip',
-        __( 'VIP', 'suz' ),
+        __( 'VIP', 'suz-control-panel' ),
         array(
             'read' => true,
             // VIP capabilities
@@ -87,9 +87,9 @@ function suz_set_user_role( $user, $new_role ) {
  */
 function suz_get_custom_roles() {
     return array(
-        'suz_member'       => __( 'SUZ Member', 'suz' ),
-        'suz_non_member'   => __( 'SUZ Non-Member', 'suz' ),
-        'suz_representative' => __( 'SUZ Representative', 'suz' ),
-        'vip'              => __( 'VIP', 'suz' ),
+        'suz_member'       => __( 'SUZ Member', 'suz-control-panel' ),
+        'suz_non_member'   => __( 'SUZ Non-Member', 'suz-control-panel' ),
+        'suz_representative' => __( 'SUZ Representative', 'suz-control-panel' ),
+        'vip'              => __( 'VIP', 'suz-control-panel' ),
     );
 }

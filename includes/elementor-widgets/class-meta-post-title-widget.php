@@ -23,7 +23,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
     }
 
     public function get_title() {
-        return 'SUZ Meta Post Title';
+        return esc_html__( 'SUZ Meta Post Title', 'suz-control-panel' );
     }
 
     public function get_icon() {
@@ -39,7 +39,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->start_controls_section(
             'content_section',
             [
-                'label' => 'Content',
+                'label' => esc_html__( 'Content', 'suz-control-panel' ),
                 'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -47,20 +47,20 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'key',
             [
-                'label'       => 'Meta Key',
+                'label'       => esc_html__( 'Meta Key', 'suz-control-panel' ),
                 'type'        => \Elementor\Controls_Manager::TEXT,
                 'default'     => '',
-                'description' => 'Enter the meta key to retrieve the post ID.',
+                'description' => esc_html__( 'Enter the meta key to retrieve the post ID.', 'suz-control-panel' ),
             ]
         );
 
         $this->add_control(
             'enable_tooltip',
             [
-                'label'        => 'Enable Tooltip',
+                'label'        => esc_html__( 'Enable Tooltip', 'suz-control-panel' ),
                 'type'         => \Elementor\Controls_Manager::SWITCHER,
-                'label_on'     => __( 'On', 'suz-control-panel' ),
-                'label_off'    => __( 'Off', 'suz-control-panel' ),
+                'label_on'     => esc_html__( 'On', 'suz-control-panel' ),
+                'label_off'    => esc_html__( 'Off', 'suz-control-panel' ),
                 'return_value' => 'yes',
                 'default'      => 'yes',
             ]
@@ -69,11 +69,25 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'popup_template_id',
             [
-                'label'       => 'Tooltip Content Template ID',
+                'label'       => esc_html__( 'Tooltip Content Template ID', 'suz-control-panel' ),
                 'type'        => \Elementor\Controls_Manager::NUMBER,
                 'min'         => 1,
                 'default'     => 9118,
-                'description' => 'Elementor template/page ID rendered inside tooltip.',
+                'description' => esc_html__( 'Elementor template/page ID rendered inside tooltip.', 'suz-control-panel' ),
+                'condition'   => [
+                    'enable_tooltip' => 'yes',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'fallback_popup_template_id',
+            [
+                'label'       => esc_html__( 'Fallback Tooltip Template ID', 'suz-control-panel' ),
+                'type'        => \Elementor\Controls_Manager::NUMBER,
+                'min'         => 1,
+                'default'     => '',
+                'description' => esc_html__( 'Optional: Elementor template/page ID used when main tooltip data/template is unavailable.', 'suz-control-panel' ),
                 'condition'   => [
                     'enable_tooltip' => 'yes',
                 ],
@@ -83,7 +97,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'tooltip_panel_width',
             [
-                'label'       => 'Tooltip Width (px)',
+                'label'       => esc_html__( 'Tooltip Width (px)', 'suz-control-panel' ),
                 'type'        => \Elementor\Controls_Manager::NUMBER,
                 'min'         => 220,
                 'max'         => 1200,
@@ -98,7 +112,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'tooltip_panel_height',
             [
-                'label'       => 'Tooltip Max Height (px)',
+                'label'       => esc_html__( 'Tooltip Max Height (px)', 'suz-control-panel' ),
                 'type'        => \Elementor\Controls_Manager::NUMBER,
                 'min'         => 180,
                 'max'         => 1200,
@@ -116,7 +130,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->start_controls_section(
             'style_section',
             [
-                'label' => 'Style',
+                'label' => esc_html__( 'Style', 'suz-control-panel' ),
                 'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
             ]
         );
@@ -124,7 +138,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'link_color',
             [
-                'label'     => 'Link Color',
+                'label'     => esc_html__( 'Link Color', 'suz-control-panel' ),
                 'type'      => \Elementor\Controls_Manager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} a'                    => 'color: {{VALUE}};',
@@ -222,48 +236,9 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                 border-right: 1px solid #d8e0ea;
                 border-bottom: 1px solid #d8e0ea;
             }
-            .suz-tooltip-speaker {
-                display: grid;
-                gap: 14px;
-                color: #0f172a;
-            }
-            .suz-tooltip-speaker__image img {
-                display: block;
-                width: 100%;
-                max-height: 280px;
-                object-fit: cover;
-                border-radius: 10px;
-            }
-            .suz-tooltip-speaker__logo img {
-                display: block;
-                max-width: 170px;
-                max-height: 48px;
-                width: auto;
-            }
-            .suz-tooltip-speaker__company {
-                margin: 0;
-                font-size: 24px;
-                line-height: 1.2;
-            }
-            .suz-tooltip-speaker__role {
-                margin: 6px 0 0;
-                color: #334155;
-            }
-            .suz-tooltip-speaker__bio {
-                margin-top: 10px;
-                color: #1e293b;
-                line-height: 1.55;
-            }
-            .suz-tooltip-speaker__empty {
-                margin: 0;
-                color: #334155;
-            }
             @media (max-width: 767px) {
                 .suz-global-tooltip {
                     padding: 14px;
-                }
-                .suz-tooltip-speaker__company {
-                    font-size: 20px;
                 }
             }
         </style>
@@ -458,91 +433,6 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         <?php
     }
 
-    private function get_image_url_from_meta( $post_id, $meta_key, $size = 'large' ) {
-        if ( function_exists( 'suz_popup_image_url_from_meta' ) ) {
-            return suz_popup_image_url_from_meta( $post_id, $meta_key, $size );
-        }
-
-        $image = get_post_meta( $post_id, $meta_key, true );
-
-        if ( empty( $image ) ) {
-            return '';
-        }
-
-        if ( is_numeric( $image ) ) {
-            $url = wp_get_attachment_image_url( absint( $image ), $size );
-            return $url ? $url : '';
-        }
-
-        if ( is_array( $image ) ) {
-            if ( ! empty( $image['url'] ) ) {
-                return esc_url_raw( $image['url'] );
-            }
-            if ( ! empty( $image['ID'] ) ) {
-                $url = wp_get_attachment_image_url( absint( $image['ID'] ), $size );
-                return $url ? $url : '';
-            }
-            if ( ! empty( $image['id'] ) ) {
-                $url = wp_get_attachment_image_url( absint( $image['id'] ), $size );
-                return $url ? $url : '';
-            }
-        }
-
-        if ( is_string( $image ) ) {
-            if ( is_numeric( $image ) ) {
-                $url = wp_get_attachment_image_url( absint( $image ), $size );
-                return $url ? $url : '';
-            }
-            return esc_url_raw( $image );
-        }
-
-        return '';
-    }
-
-    private function render_fallback_tooltip_content( $post_id ) {
-        $company       = trim( (string) get_post_meta( $post_id, 'suz_lecture_speaker_company', true ) );
-        $role          = trim( (string) get_post_meta( $post_id, 'suz_lecture_speaker_role', true ) );
-        $bio           = trim( (string) get_post_meta( $post_id, 'suz_lecture_speaker_bio', true ) );
-        $speaker_photo = $this->get_image_url_from_meta( $post_id, 'suz_lecture_speaker_photo', 'large' );
-        $company_logo  = $this->get_image_url_from_meta( $post_id, 'suz_lecture_speaker_company_logo', 'medium' );
-
-        if ( '' === $company && '' === $role && '' === $bio && '' === $speaker_photo && '' === $company_logo ) {
-            return '<p class="suz-tooltip-speaker__empty">' . esc_html__( 'Speaker information is currently unavailable.', 'suz-control-panel' ) . '</p>';
-        }
-
-        ob_start();
-        ?>
-        <div class="suz-tooltip-speaker">
-            <?php if ( $speaker_photo ) : ?>
-                <div class="suz-tooltip-speaker__image">
-                    <img src="<?php echo esc_url( $speaker_photo ); ?>" alt="<?php echo esc_attr( $company ? $company : __( 'Speaker', 'suz-control-panel' ) ); ?>">
-                </div>
-            <?php endif; ?>
-
-            <div class="suz-tooltip-speaker__content">
-                <?php if ( $company_logo ) : ?>
-                    <div class="suz-tooltip-speaker__logo">
-                        <img src="<?php echo esc_url( $company_logo ); ?>" alt="<?php echo esc_attr( $company ? $company : __( 'Company logo', 'suz-control-panel' ) ); ?>">
-                    </div>
-                <?php endif; ?>
-
-                <?php if ( $company ) : ?>
-                    <h3 class="suz-tooltip-speaker__company"><?php echo esc_html( $company ); ?></h3>
-                <?php endif; ?>
-
-                <?php if ( $role ) : ?>
-                    <p class="suz-tooltip-speaker__role"><?php echo esc_html( $role ); ?></p>
-                <?php endif; ?>
-
-                <?php if ( $bio ) : ?>
-                    <div class="suz-tooltip-speaker__bio"><?php echo wpautop( esc_html( $bio ) ); ?></div>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php
-        return (string) ob_get_clean();
-    }
-
     private function has_displayable_content( $content ) {
         $content = (string) $content;
 
@@ -553,15 +443,15 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         return false !== stripos( $content, '<img' );
     }
 
-    private function get_tooltip_content( $post_id, $popup_template_id, $force_fallback = false ) {
-        if ( $force_fallback || ! $popup_template_id || ! class_exists( '\\Elementor\\Plugin' ) ) {
-            return $this->render_fallback_tooltip_content( $post_id );
+    private function render_tooltip_template_content( $post_id, $template_id ) {
+        if ( ! $template_id || ! class_exists( '\\Elementor\\Plugin' ) ) {
+            return '';
         }
 
         $target_post = get_post( $post_id );
 
         if ( ! $target_post ) {
-            return $this->render_fallback_tooltip_content( $post_id );
+            return '';
         }
 
         global $post, $wp_query;
@@ -587,7 +477,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         }
 
         \Elementor\Plugin::$instance->frontend->enqueue_styles();
-        $content = \Elementor\Plugin::instance()->frontend->get_builder_content_for_display( $popup_template_id, true );
+        $content = \Elementor\Plugin::instance()->frontend->get_builder_content_for_display( $template_id, true );
 
         wp_reset_postdata();
         $post = $previous_post;
@@ -603,11 +493,38 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
             unset( $GLOBALS['suz_current_popup_speaker_id'] );
         }
 
-        if ( ! $this->has_displayable_content( $content ) ) {
-            return $this->render_fallback_tooltip_content( $post_id );
+        return (string) $content;
+    }
+
+    private function get_tooltip_content( $post_id, $popup_template_id, $fallback_popup_template_id = 0, $force_fallback = false ) {
+        $popup_template_id = absint( $popup_template_id );
+        $fallback_popup_template_id = absint( $fallback_popup_template_id );
+
+        if ( $force_fallback ) {
+            if ( $fallback_popup_template_id ) {
+                $fallback_template_content = $this->render_tooltip_template_content( $post_id, $fallback_popup_template_id );
+                if ( $this->has_displayable_content( $fallback_template_content ) ) {
+                    return $fallback_template_content;
+                }
+            }
+            return '';
         }
 
-        return (string) $content;
+        if ( $popup_template_id ) {
+            $content = $this->render_tooltip_template_content( $post_id, $popup_template_id );
+            if ( $this->has_displayable_content( $content ) ) {
+                return $content;
+            }
+        }
+
+        if ( $fallback_popup_template_id ) {
+            $fallback_template_content = $this->render_tooltip_template_content( $post_id, $fallback_popup_template_id );
+            if ( $this->has_displayable_content( $fallback_template_content ) ) {
+                return $fallback_template_content;
+            }
+        }
+
+        return '';
     }
 
     private function build_tooltip_item( $label, $tooltip_content, $tooltip_width, $tooltip_height ) {
@@ -626,6 +543,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $enable_tooltip    = isset( $settings['enable_tooltip'] ) && 'yes' === $settings['enable_tooltip'];
         $post_id           = get_the_ID();
         $popup_template_id = isset( $settings['popup_template_id'] ) ? absint( $settings['popup_template_id'] ) : 0;
+        $fallback_popup_template_id = isset( $settings['fallback_popup_template_id'] ) ? absint( $settings['fallback_popup_template_id'] ) : 0;
         $tooltip_width     = isset( $settings['tooltip_panel_width'] ) ? absint( $settings['tooltip_panel_width'] ) : 560;
         $tooltip_height    = isset( $settings['tooltip_panel_height'] ) ? absint( $settings['tooltip_panel_height'] ) : 560;
 
@@ -688,7 +606,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                 }
 
                 $user_id         = absint( $user_id );
-                $tooltip_content = $this->get_tooltip_content( $user_id, $popup_template_id, false );
+                $tooltip_content = $this->get_tooltip_content( $user_id, $popup_template_id, $fallback_popup_template_id, false );
 
                 if ( ! $this->has_displayable_content( $tooltip_content ) ) {
                     continue;
@@ -702,7 +620,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                 $should_print_tooltip_assets = true;
             } elseif ( $has_fallback_data ) {
                 $fallback_label   = $suz_lsc ? $suz_lsc : __( 'Speaker details', 'suz-control-panel' );
-                $tooltip_content  = $this->get_tooltip_content( $post_id, $popup_template_id, true );
+                $tooltip_content  = $this->get_tooltip_content( $post_id, $popup_template_id, $fallback_popup_template_id, true );
 
                 if ( $this->has_displayable_content( $tooltip_content ) ) {
                     echo $this->build_tooltip_item( $fallback_label, $tooltip_content, $tooltip_width, $tooltip_height );
@@ -712,7 +630,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         } else {
             if ( $has_fallback_data ) {
                 $fallback_label  = $suz_lsc ? $suz_lsc : __( 'Speaker details', 'suz-control-panel' );
-                $tooltip_content = $this->get_tooltip_content( $post_id, $popup_template_id, true );
+                $tooltip_content = $this->get_tooltip_content( $post_id, $popup_template_id, $fallback_popup_template_id, true );
 
                 if ( $this->has_displayable_content( $tooltip_content ) ) {
                     echo $this->build_tooltip_item( $fallback_label, $tooltip_content, $tooltip_width, $tooltip_height );

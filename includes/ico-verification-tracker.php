@@ -93,7 +93,7 @@ function suz_sync_mailchimp_tag( $user_id, $role ) {
  */
 function suz_panel_render_ico_verification_page() {
     if ( ! current_user_can( 'manage_options' ) ) {
-        wp_die( __( 'Permission denied', 'suz' ) );
+        wp_die( __( 'Permission denied', 'suz-control-panel' ) );
     }
 
     $role_filter = isset( $_GET['role'] ) ? sanitize_text_field( $_GET['role'] ) : '';
@@ -113,22 +113,22 @@ function suz_panel_render_ico_verification_page() {
     $users = ( new WP_User_Query( $args ) )->get_results();
 
     echo '<div class="wrap">';
-    echo '<h1>' . esc_html__( 'IČo Verification Tracker', 'suz' ) . '</h1>';
+    echo '<h1>' . esc_html__( 'IČo Verification Tracker', 'suz-control-panel' ) . '</h1>';
 
     echo '<form method="get" action="">';
     echo '<input type="hidden" name="page" value="suz-ico-tracker">';
-    echo '<input type="text" name="s" value="' . esc_attr( $email_query ) . '" placeholder="' . esc_attr__( 'Search by email', 'suz' ) . '">';
+    echo '<input type="text" name="s" value="' . esc_attr( $email_query ) . '" placeholder="' . esc_attr__( 'Search by email', 'suz-control-panel' ) . '">';
     echo '<select name="role">';
-    echo '<option value="">' . esc_html__( 'All Roles', 'suz' ) . '</option>';
+    echo '<option value="">' . esc_html__( 'All Roles', 'suz-control-panel' ) . '</option>';
     $roles = array( 'suz_member', 'suz_non_member', 'suz_representative', 'vip' );
     foreach ( $roles as $role ) {
         echo '<option value="' . esc_attr( $role ) . '"' . selected( $role_filter, $role, false ) . '>' . esc_html( $role ) . '</option>';
     }
-    echo '</select> <button class="button">' . esc_html__( 'Filter', 'suz' ) . '</button>';
+    echo '</select> <button class="button">' . esc_html__( 'Filter', 'suz-control-panel' ) . '</button>';
     echo '</form>';
 
     echo '<table class="widefat fixed striped">';
-    echo '<thead><tr><th>' . esc_html__( 'User', 'suz' ) . '</th><th>' . esc_html__( 'Email', 'suz' ) . '</th><th>' . esc_html__( 'IČo', 'suz' ) . '</th><th>' . esc_html__( 'Role', 'suz' ) . '</th><th>' . esc_html__( 'Status', 'suz' ) . '</th><th>' . esc_html__( 'Action', 'suz' ) . '</th></tr></thead><tbody>';
+    echo '<thead><tr><th>' . esc_html__( 'User', 'suz-control-panel' ) . '</th><th>' . esc_html__( 'Email', 'suz-control-panel' ) . '</th><th>' . esc_html__( 'IČo', 'suz-control-panel' ) . '</th><th>' . esc_html__( 'Role', 'suz-control-panel' ) . '</th><th>' . esc_html__( 'Status', 'suz-control-panel' ) . '</th><th>' . esc_html__( 'Action', 'suz-control-panel' ) . '</th></tr></thead><tbody>';
 
     if ( $users ) {
         foreach ( $users as $user ) {
@@ -145,7 +145,7 @@ function suz_panel_render_ico_verification_page() {
             echo '<td>' . esc_html( $user->user_email ) . '</td>';
             echo '<td>' . esc_html( $ico ) . '</td>';
             echo '<td>' . esc_html( $role ) . '</td>';
-            echo '<td>' . ( $ico_valid ? '<span style="color:green;">✔ ' . esc_html__( 'verified', 'suz' ) . '</span>' : '<span style="color:red;">✘ ' . esc_html__( 'Not Verified', 'suz' ) . '</span>' ) . '</td>';
+            echo '<td>' . ( $ico_valid ? '<span style="color:green;">✔ ' . esc_html__( 'verified', 'suz-control-panel' ) . '</span>' : '<span style="color:red;">✘ ' . esc_html__( 'Not Verified', 'suz-control-panel' ) . '</span>' ) . '</td>';
             echo '<td>';
             echo '<form method="post">';
             wp_nonce_field( 'suz_ico_role_update', 'suz_ico_nonce' );
@@ -155,13 +155,13 @@ function suz_panel_render_ico_verification_page() {
                 echo '<option value="' . esc_attr( $r ) . '"' . selected( in_array( $r, $user->roles, true ), true, false ) . '>' . esc_html( ucfirst( str_replace( 'suz_', '', $r ) ) ) . '</option>';
             }
             echo '</select>';
-            echo '<input type="submit" name="update_role" class="button button-small" value="' . esc_attr__( 'Update Role', 'suz' ) . '">';
+            echo '<input type="submit" name="update_role" class="button button-small" value="' . esc_attr__( 'Update Role', 'suz-control-panel' ) . '">';
             echo '</form>';
             echo '</td>';
             echo '</tr>';
         }
     } else {
-        echo '<tr><td colspan="6">' . esc_html__( 'No users with IČo found.', 'suz' ) . '</td></tr>';
+        echo '<tr><td colspan="6">' . esc_html__( 'No users with IČo found.', 'suz-control-panel' ) . '</td></tr>';
     }
 
     echo '</tbody></table>';
@@ -178,7 +178,7 @@ function suz_handle_ico_role_update() {
     }
 
     if ( ! isset( $_POST['suz_ico_nonce'] ) || ! wp_verify_nonce( $_POST['suz_ico_nonce'], 'suz_ico_role_update' ) ) {
-        wp_die( __( 'Security check failed.', 'suz' ) );
+        wp_die( __( 'Security check failed.', 'suz-control-panel' ) );
     }
 
     $user_id  = absint( $_POST['user_id'] );
@@ -195,7 +195,7 @@ function suz_handle_ico_role_update() {
         suz_sync_mailchimp_tag( $user_id, $new_role );
 
         add_action( 'admin_notices', function() use ( $user_id, $new_role ) {
-            echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'User #%d role updated to %s successfully.', 'suz' ), $user_id, $new_role ) . '</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( 'User #%d role updated to %s successfully.', 'suz-control-panel' ), $user_id, $new_role ) . '</p></div>';
         } );
     }
 }
@@ -205,8 +205,8 @@ function suz_handle_ico_role_update() {
  */
 add_action( 'admin_menu', function() {
     add_menu_page(
-        __( 'SUZ ICO Tracker', 'suz' ),
-        __( 'SUZ ICO Tracker', 'suz' ),
+        __( 'SUZ ICO Tracker', 'suz-control-panel' ),
+        __( 'SUZ ICO Tracker', 'suz-control-panel' ),
         'manage_options',
         'suz-ico-tracker',
         'suz_panel_render_ico_verification_page',
