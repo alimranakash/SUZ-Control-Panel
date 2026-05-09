@@ -3,7 +3,7 @@
  * Plugin Name: SUZ Control Panel
  * Plugin URI:  https://magicmedia.sk/ 
  * Description: Central dashboard to manage SUZ-related plugins & features.
- * Version:     1.3.5
+ * Version:     1.3.6
  * Author:      Magicmedia
  * Text Domain: suz-control-panel
  * Domain Path: /languages
@@ -58,6 +58,7 @@ if ( file_exists( $suz_konferencie_file ) ) {
 if ( is_admin() ) {
     require_once plugin_dir_path( __FILE__ ) . 'admin/admin-notifications.php';
     require_once plugin_dir_path( __FILE__ ) . 'admin/admin-columns.php'; // Task 7: Admin List Columns + Filtering
+    require_once plugin_dir_path( __FILE__ ) . 'admin/event-related-metabox.php';
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'import-users-email-passwords.php';
