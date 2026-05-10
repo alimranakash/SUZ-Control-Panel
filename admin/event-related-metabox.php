@@ -168,7 +168,12 @@ function suz_render_event_related_metabox( $post ) {
 
 function suz_get_related_posts_by_event_code( $post_type, $meta_key, $event_code ) {
 
-    return get_posts( array(
+    $event_code = trim( (string) $event_code );
+    if ( '' === $event_code ) {
+        return array();
+    }
+
+    $posts = get_posts( array(
         'post_type'      => $post_type,
         'post_status'    => 'publish',
         'posts_per_page' => -1,
@@ -177,11 +182,21 @@ function suz_get_related_posts_by_event_code( $post_type, $meta_key, $event_code
             array(
                 'key'     => $meta_key,
                 'value'   => $event_code,
-                'compare' => '=',
+                'compare' => 'LIKE',
             ),
         ),
 
     ) );
+
+    $filtered = array();
+    foreach ( $posts as $post ) {
+        $codes = suz_parse_event_codes( get_post_meta( $post->ID, $meta_key, true ) );
+        if ( in_array( $event_code, $codes, true ) ) {
+            $filtered[] = $post;
+        }
+    }
+
+    return $filtered;
 
 }
 
@@ -253,6 +268,49 @@ function suz_apply_related_order( $posts, $saved_ids ) {
     return array_merge( $ordered, array_values( $map ) );
 }
 
+function suz_parse_event_codes( $raw_value ) {
+    if ( is_array( $raw_value ) ) {
+        $raw_value = implode( ',', $raw_value );
+    }
+
+    $raw_value = (string) $raw_value;
+    if ( '' === $raw_value ) {
+        return array();
+    }
+
+    $parts = explode( ',', $raw_value );
+    $codes = array();
+
+    foreach ( $parts as $part ) {
+        $code = trim( sanitize_text_field( $part ) );
+        if ( '' !== $code ) {
+            $codes[] = $code;
+        }
+    }
+
+    return array_values( array_unique( $codes ) );
+}
+
+function suz_remove_event_code_from_meta( $raw_value, $event_code ) {
+    $event_code = trim( (string) $event_code );
+    $codes      = suz_parse_event_codes( $raw_value );
+
+    if ( ! in_array( $event_code, $codes, true ) ) {
+        return false;
+    }
+
+    $codes = array_values(
+        array_filter(
+            $codes,
+            static function( $code ) use ( $event_code ) {
+                return $code !== $event_code;
+            }
+        )
+    );
+
+    return implode( ',', $codes );
+}
+
 function suz_remove_related_event_code() {
     if ( ! check_ajax_referer( 'suz_related_remove', 'nonce', false ) ) {
         wp_send_json_error( array( 'message' => __( 'Invalid nonce', 'suz-control-panel' ) ), 403 );
@@ -269,11 +327,18 @@ function suz_remove_related_event_code() {
         wp_send_json_error( array( 'message' => __( 'Missing data', 'suz-control-panel' ) ), 400 );
     }
 
-    if ( get_post_meta( $related_id, $meta_key, true ) !== $event_code ) {
+    $meta_value = get_post_meta( $related_id, $meta_key, true );
+    $updated    = suz_remove_event_code_from_meta( $meta_value, $event_code );
+
+    if ( false === $updated ) {
         wp_send_json_error( array( 'message' => __( 'Event code not matched', 'suz-control-panel' ) ), 400 );
     }
 
-    delete_post_meta( $related_id, $meta_key );
+    if ( '' === $updated ) {
+        delete_post_meta( $related_id, $meta_key );
+    } else {
+        update_post_meta( $related_id, $meta_key, $updated );
+    }
 
     wp_send_json_success();
 }
