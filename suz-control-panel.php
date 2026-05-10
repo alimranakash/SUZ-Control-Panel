@@ -262,6 +262,34 @@ function suz_query_event_lectures( $query ) {
 
 add_action( 'elementor/query/event_lectures', 'suz_query_event_lectures' );
 
+function suz_query_event_speakers( $query ) {
+    $event_id = suz_get_current_event_id_for_query();
+
+    if ( ! $event_id ) {
+        $query->set( 'post__in', array( 0 ) );
+        return;
+    }
+
+    $event_code  = get_post_meta( $event_id, 'suz_event_code', true );
+    $matched_ids = suz_get_post_ids_by_csv_meta_code( 'suz_speaker', 'suz_speaker_event_code', $event_code );
+
+    if ( empty( $matched_ids ) ) {
+        $query->set( 'post__in', array( 0 ) );
+        return;
+    }
+
+    $saved_order = get_post_meta( $event_id, 'suz_related_order_speaker', true );
+    $ordered_ids = suz_order_ids_by_saved_order( $matched_ids, $saved_order );
+
+    $query->set( 'post_type', 'suz_speaker' );
+    $query->set( 'post_status', 'publish' );
+    $query->set( 'post__in', $ordered_ids );
+    $query->set( 'posts_per_page', count( $ordered_ids ) );
+    $query->set( 'orderby', 'post__in' );
+}
+
+add_action( 'elementor/query/event_speakers', 'suz_query_event_speakers' );
+
 add_action( 'elementor/query/upcoming_events', function( $query ) {
 
     $current_datetime = current_time( 'Y-m-d H:i:s' );
