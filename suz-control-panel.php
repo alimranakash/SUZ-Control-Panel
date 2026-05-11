@@ -3,7 +3,7 @@
  * Plugin Name: SUZ Control Panel
  * Plugin URI:  https://magicmedia.sk/ 
  * Description: Central dashboard to manage SUZ-related plugins & features.
- * Version:     1.4.0
+ * Version:     1.4.1
  * Author:      Magicmedia
  * Text Domain: suz-control-panel
  * Domain Path: /languages
@@ -42,6 +42,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/event-status-queries.php'; 
 require_once plugin_dir_path( __FILE__ ) . 'includes/popup-content-ajax.php'; // Popup content AJAX endpoint
 require_once plugin_dir_path( __FILE__ ) . 'includes/lecture-prefill.php'; // Auto-prefill lecture fields on new post
 require_once plugin_dir_path( __FILE__ ) . 'includes/meta-shortcode.php'; // [suz_meta] shortcode
+require_once plugin_dir_path( __FILE__ ) . 'admin/event-code-validation.php'; // Keep suz_event_code unique
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/eve-woo-combo.php'; // Eventin Woocommerce Combo
 

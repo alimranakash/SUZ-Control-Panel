@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // =============================================================================
 // 7.1 suz_event – Conferences
-// Columns: Title | Start Date | End Date | Type | Venue | Status |
+// Columns: Title | Event Code | Start Date | End Date | Type | Venue | Status |
 //          Categories | Tags | Topics | Ticket | Date Created
 // Filters: status, category, topic
 // Sortable: start date
@@ -25,6 +25,7 @@ function suz_event_admin_columns( $columns ) {
         }
         $new[ $key ] = $label;
         if ( $key === 'title' ) {
+            $new['suz_event_code']     = __( 'Event Code', 'suz-control-panel' );
             $new['suz_start_date']     = __( 'Start Date', 'suz-control-panel' );
             $new['suz_end_date']       = __( 'End Date', 'suz-control-panel' );
             $new['suz_event_type']     = __( 'Type', 'suz-control-panel' );
@@ -42,6 +43,11 @@ function suz_event_admin_columns( $columns ) {
 add_action( 'manage_suz_event_posts_custom_column', 'suz_event_admin_column_content', 10, 2 );
 function suz_event_admin_column_content( $column, $post_id ) {
     switch ( $column ) {
+
+        case 'suz_event_code':
+            $val = get_post_meta( $post_id, 'suz_event_code', true );
+            echo $val ? esc_html( $val ) : '—';
+            break;
 
         case 'suz_start_date':
             $val = get_field( 'suz_start_date', $post_id );
