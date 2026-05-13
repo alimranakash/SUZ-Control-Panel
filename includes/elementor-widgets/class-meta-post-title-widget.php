@@ -891,13 +891,13 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
 
     protected function render() {
         $settings          = $this->get_settings_for_display();
-        $key               = isset( $settings['key'] ) ? $settings['key'] : '';
+        $key               = isset( $settings['key'] ) ? trim( (string) $settings['key'] ) : '';
         $post_id           = get_the_ID();
         $label_settings    = $this->get_label_settings( $settings );
         $name_tooltip      = $this->get_name_tooltip_settings( $settings );
         $company_tooltip   = $this->get_company_tooltip_settings( $settings );
 
-        $users    = get_post_meta( $post_id, $key, true );
+        $users    = '' === $key ? [ $post_id ] : get_post_meta( $post_id, $key, true );
         $suz_lsc  = get_post_meta( $post_id, 'suz_lecture_speaker_company', true );
         $suz_lsr  = get_post_meta( $post_id, 'suz_lecture_speaker_role', true );
         $suz_lsp  = get_post_meta( $post_id, 'suz_lecture_speaker_photo', true );
