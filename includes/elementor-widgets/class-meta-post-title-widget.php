@@ -633,6 +633,28 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         return preg_replace( '/[\r\n\t]+/', ' ', $separator );
     }
 
+    private function get_display_label_separator( $separator ) {
+        $separator = $this->normalize_label_separator( $separator );
+
+        if ( '' === trim( $separator ) ) {
+            return '';
+        }
+
+        if ( preg_match( '/^\s|\s$/', $separator ) ) {
+            return $separator;
+        }
+
+        if ( ',' === $separator || ';' === $separator ) {
+            return $separator . ' ';
+        }
+
+        return ' ' . $separator . ' ';
+    }
+
+    private function escape_label_separator( $separator ) {
+        return str_replace( ' ', '&nbsp;', esc_html( $separator ) );
+    }
+
     private function get_label_settings( $settings ) {
         return [
             'show_name'     => ! isset( $settings['show_speaker_name'] ) || 'yes' === $settings['show_speaker_name'],
@@ -724,7 +746,9 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
             return '<span class="meta-value">' . esc_html__( 'Speaker details', 'suz-control-panel' ) . '</span>';
         }
 
-        return implode( '<span class="suz-label-separator">' . esc_html( $separator ) . '</span>', $output );
+        $separator = $this->get_display_label_separator( $separator );
+
+        return implode( '<span class="suz-label-separator">' . $this->escape_label_separator( $separator ) . '</span>', $output );
     }
 
     private function build_speaker_label_html( $speaker_id, $label_settings, $name_tooltip_settings, $company_tooltip_settings, &$should_print_tooltip_assets ) {
