@@ -55,6 +55,62 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         );
 
         $this->add_control(
+            'label_parts_heading',
+            [
+                'label'     => esc_html__( 'Label Parts', 'suz-control-panel' ),
+                'type'      => \Elementor\Controls_Manager::HEADING,
+                'separator' => 'before',
+            ]
+        );
+
+        $this->add_control(
+            'show_speaker_name',
+            [
+                'label'        => esc_html__( 'Show Name', 'suz-control-panel' ),
+                'type'         => \Elementor\Controls_Manager::SWITCHER,
+                'label_on'     => esc_html__( 'On', 'suz-control-panel' ),
+                'label_off'    => esc_html__( 'Off', 'suz-control-panel' ),
+                'return_value' => 'yes',
+                'default'      => 'yes',
+            ]
+        );
+
+        $this->add_control(
+            'show_speaker_position',
+            [
+                'label'        => esc_html__( 'Show Position', 'suz-control-panel' ),
+                'type'         => \Elementor\Controls_Manager::SWITCHER,
+                'label_on'     => esc_html__( 'On', 'suz-control-panel' ),
+                'label_off'    => esc_html__( 'Off', 'suz-control-panel' ),
+                'return_value' => 'yes',
+                'default'      => '',
+            ]
+        );
+
+        $this->add_control(
+            'show_speaker_company',
+            [
+                'label'        => esc_html__( 'Show Company', 'suz-control-panel' ),
+                'type'         => \Elementor\Controls_Manager::SWITCHER,
+                'label_on'     => esc_html__( 'On', 'suz-control-panel' ),
+                'label_off'    => esc_html__( 'Off', 'suz-control-panel' ),
+                'return_value' => 'yes',
+                'default'      => '',
+            ]
+        );
+
+        $this->add_control(
+            'label_separator',
+            [
+                'label'       => esc_html__( 'Label Separator', 'suz-control-panel' ),
+                'type'        => \Elementor\Controls_Manager::TEXT,
+                'default'     => ' - ',
+                'placeholder' => ' - ',
+                'description' => esc_html__( 'Used between enabled label parts, for example: Name - Position - Company.', 'suz-control-panel' ),
+            ]
+        );
+
+        $this->add_control(
             'enable_tooltip',
             [
                 'label'        => esc_html__( 'Enable Tooltip', 'suz-control-panel' ),
@@ -184,6 +240,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                 font: inherit;
                 color: inherit;
                 line-height: inherit;
+                text-align: left;
             }
             .suz-tooltip-item .suz-tooltip-trigger:hover {
                 background: transparent;
@@ -443,6 +500,107 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         return false !== stripos( $content, '<img' );
     }
 
+    private function normalize_label_part( $value ) {
+        if ( $value instanceof \WP_Post ) {
+            $value = $value->post_title;
+        } elseif ( is_array( $value ) ) {
+            $parts = [];
+
+            foreach ( $value as $item ) {
+                $item = $this->normalize_label_part( $item );
+
+                if ( '' !== $item ) {
+                    $parts[] = $item;
+                }
+            }
+
+            return implode( ', ', $parts );
+        } elseif ( is_object( $value ) ) {
+            $value = method_exists( $value, '__toString' ) ? (string) $value : '';
+        }
+
+        $value = trim( wp_strip_all_tags( (string) $value ) );
+
+        return preg_replace( '/\s+/', ' ', $value );
+    }
+
+    private function get_speaker_meta_text( $speaker_id, $meta_key ) {
+        $value = '';
+
+        if ( function_exists( 'get_field' ) ) {
+            $value = get_field( $meta_key, $speaker_id );
+        }
+
+        if ( '' === $this->normalize_label_part( $value ) ) {
+            $value = get_post_meta( $speaker_id, $meta_key, true );
+        }
+
+        return $this->normalize_label_part( $value );
+    }
+
+    private function normalize_label_separator( $separator ) {
+        $separator = wp_strip_all_tags( (string) $separator );
+
+        return preg_replace( '/[\r\n\t]+/', ' ', $separator );
+    }
+
+    private function get_label_settings( $settings ) {
+        return [
+            'show_name'     => ! isset( $settings['show_speaker_name'] ) || 'yes' === $settings['show_speaker_name'],
+            'show_position' => isset( $settings['show_speaker_position'] ) && 'yes' === $settings['show_speaker_position'],
+            'show_company'  => isset( $settings['show_speaker_company'] ) && 'yes' === $settings['show_speaker_company'],
+            'separator'     => isset( $settings['label_separator'] ) ? $this->normalize_label_separator( $settings['label_separator'] ) : ' - ',
+        ];
+    }
+
+    private function build_label_from_parts( $parts, $separator ) {
+        $parts = array_values( array_filter( $parts, function ( $part ) {
+            return '' !== $part;
+        } ) );
+
+        if ( empty( $parts ) ) {
+            return __( 'Speaker details', 'suz-control-panel' );
+        }
+
+        return implode( $separator, $parts );
+    }
+
+    private function build_speaker_label( $speaker_id, $label_settings ) {
+        $parts = [];
+
+        if ( $label_settings['show_name'] ) {
+            $parts[] = $this->normalize_label_part( get_the_title( $speaker_id ) );
+        }
+
+        if ( $label_settings['show_position'] ) {
+            $parts[] = $this->get_speaker_meta_text( $speaker_id, 'suz_speaker_designation' );
+        }
+
+        if ( $label_settings['show_company'] ) {
+            $parts[] = $this->get_speaker_meta_text( $speaker_id, 'suz_speaker_company' );
+        }
+
+        return $this->build_label_from_parts( $parts, $label_settings['separator'] );
+    }
+
+    private function build_fallback_speaker_label( $role, $company, $label_settings ) {
+        $parts = [];
+
+        if ( $label_settings['show_position'] ) {
+            $parts[] = $this->normalize_label_part( $role );
+        }
+
+        if ( $label_settings['show_company'] ) {
+            $parts[] = $this->normalize_label_part( $company );
+        }
+
+        if ( empty( array_filter( $parts ) ) ) {
+            $parts[] = $this->normalize_label_part( $company );
+        }
+
+        return $this->build_label_from_parts( $parts, $label_settings['separator'] );
+    }
+
     private function render_tooltip_template_content( $post_id, $template_id ) {
         if ( ! $template_id || ! class_exists( '\\Elementor\\Plugin' ) ) {
             return '';
@@ -546,6 +704,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $fallback_popup_template_id = isset( $settings['fallback_popup_template_id'] ) ? absint( $settings['fallback_popup_template_id'] ) : 0;
         $tooltip_width     = isset( $settings['tooltip_panel_width'] ) ? absint( $settings['tooltip_panel_width'] ) : 560;
         $tooltip_height    = isset( $settings['tooltip_panel_height'] ) ? absint( $settings['tooltip_panel_height'] ) : 560;
+        $label_settings    = $this->get_label_settings( $settings );
 
         $users    = get_post_meta( $post_id, $key, true );
         $suz_lsc  = get_post_meta( $post_id, 'suz_lecture_speaker_company', true );
@@ -573,7 +732,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                         continue;
                     }
 
-                    $labels[] = get_the_title( absint( $user_id ) );
+                    $labels[] = $this->build_speaker_label( absint( $user_id ), $label_settings );
                 }
 
                 if ( ! empty( $labels ) ) {
@@ -583,7 +742,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
             }
 
             if ( $has_fallback_data ) {
-                $fallback_label = $suz_lsc ? $suz_lsc : __( 'Speaker details', 'suz-control-panel' );
+                $fallback_label = $this->build_fallback_speaker_label( $suz_lsr, $suz_lsc, $label_settings );
                 echo '<span class="meta-value">' . esc_html( $fallback_label ) . '</span>';
             } else {
                 echo '<span class="meta-value">' . esc_html( $suz_lsc ) . '</span>';
@@ -606,35 +765,40 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                 }
 
                 $user_id         = absint( $user_id );
+                $speaker_label    = $this->build_speaker_label( $user_id, $label_settings );
                 $tooltip_content = $this->get_tooltip_content( $user_id, $popup_template_id, $fallback_popup_template_id, false );
 
-                if ( ! $this->has_displayable_content( $tooltip_content ) ) {
-                    continue;
+                if ( $this->has_displayable_content( $tooltip_content ) ) {
+                    $items[] = $this->build_tooltip_item( $speaker_label, $tooltip_content, $tooltip_width, $tooltip_height );
+                    $should_print_tooltip_assets = true;
+                } else {
+                    $items[] = '<span class="meta-value">' . esc_html( $speaker_label ) . '</span>';
                 }
-
-                $items[] = $this->build_tooltip_item( get_the_title( $user_id ), $tooltip_content, $tooltip_width, $tooltip_height );
             }
 
             if ( ! empty( $items ) ) {
                 echo '<div class="suz-user-list">' . implode( ', ', $items ) . '</div>';
-                $should_print_tooltip_assets = true;
             } elseif ( $has_fallback_data ) {
-                $fallback_label   = $suz_lsc ? $suz_lsc : __( 'Speaker details', 'suz-control-panel' );
+                $fallback_label   = $this->build_fallback_speaker_label( $suz_lsr, $suz_lsc, $label_settings );
                 $tooltip_content  = $this->get_tooltip_content( $post_id, $popup_template_id, $fallback_popup_template_id, true );
 
                 if ( $this->has_displayable_content( $tooltip_content ) ) {
                     echo $this->build_tooltip_item( $fallback_label, $tooltip_content, $tooltip_width, $tooltip_height );
                     $should_print_tooltip_assets = true;
+                } else {
+                    echo '<span class="meta-value">' . esc_html( $fallback_label ) . '</span>';
                 }
             }
         } else {
             if ( $has_fallback_data ) {
-                $fallback_label  = $suz_lsc ? $suz_lsc : __( 'Speaker details', 'suz-control-panel' );
+                $fallback_label  = $this->build_fallback_speaker_label( $suz_lsr, $suz_lsc, $label_settings );
                 $tooltip_content = $this->get_tooltip_content( $post_id, $popup_template_id, $fallback_popup_template_id, true );
 
                 if ( $this->has_displayable_content( $tooltip_content ) ) {
                     echo $this->build_tooltip_item( $fallback_label, $tooltip_content, $tooltip_width, $tooltip_height );
                     $should_print_tooltip_assets = true;
+                } else {
+                    echo '<span class="meta-value">' . esc_html( $fallback_label ) . '</span>';
                 }
             } else {
                 echo '<span class="meta-value">' . esc_html( $suz_lsc ) . '</span>';
