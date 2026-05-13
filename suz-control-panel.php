@@ -3,7 +3,7 @@
  * Plugin Name: SUZ Control Panel
  * Plugin URI:  https://magicmedia.sk/ 
  * Description: Central dashboard to manage SUZ-related plugins & features.
- * Version:     1.4.1
+ * Version:     1.4.2
  * Author:      Magicmedia
  * Text Domain: suz-control-panel
  * Domain Path: /languages

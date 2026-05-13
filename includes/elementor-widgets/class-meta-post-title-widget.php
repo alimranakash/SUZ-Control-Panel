@@ -111,9 +111,18 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         );
 
         $this->add_control(
+            'name_tooltip_heading',
+            [
+                'label'     => esc_html__( 'Name Tooltip', 'suz-control-panel' ),
+                'type'      => \Elementor\Controls_Manager::HEADING,
+                'separator' => 'before',
+            ]
+        );
+
+        $this->add_control(
             'enable_tooltip',
             [
-                'label'        => esc_html__( 'Enable Tooltip', 'suz-control-panel' ),
+                'label'        => esc_html__( 'Enable Name Tooltip', 'suz-control-panel' ),
                 'type'         => \Elementor\Controls_Manager::SWITCHER,
                 'label_on'     => esc_html__( 'On', 'suz-control-panel' ),
                 'label_off'    => esc_html__( 'Off', 'suz-control-panel' ),
@@ -125,7 +134,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'popup_template_id',
             [
-                'label'       => esc_html__( 'Tooltip Content Template ID', 'suz-control-panel' ),
+                'label'       => esc_html__( 'Name Tooltip Content Template ID', 'suz-control-panel' ),
                 'type'        => \Elementor\Controls_Manager::NUMBER,
                 'min'         => 1,
                 'default'     => 9118,
@@ -139,7 +148,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'fallback_popup_template_id',
             [
-                'label'       => esc_html__( 'Fallback Tooltip Template ID', 'suz-control-panel' ),
+                'label'       => esc_html__( 'Name Fallback Tooltip Template ID', 'suz-control-panel' ),
                 'type'        => \Elementor\Controls_Manager::NUMBER,
                 'min'         => 1,
                 'default'     => '',
@@ -153,7 +162,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'tooltip_panel_width',
             [
-                'label'       => esc_html__( 'Tooltip Width (px)', 'suz-control-panel' ),
+                'label'       => esc_html__( 'Name Tooltip Width (px)', 'suz-control-panel' ),
                 'type'        => \Elementor\Controls_Manager::NUMBER,
                 'min'         => 220,
                 'max'         => 1200,
@@ -168,7 +177,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'tooltip_panel_height',
             [
-                'label'       => esc_html__( 'Tooltip Max Height (px)', 'suz-control-panel' ),
+                'label'       => esc_html__( 'Name Tooltip Max Height (px)', 'suz-control-panel' ),
                 'type'        => \Elementor\Controls_Manager::NUMBER,
                 'min'         => 180,
                 'max'         => 1200,
@@ -176,6 +185,85 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                 'default'     => 560,
                 'condition'   => [
                     'enable_tooltip' => 'yes',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'company_tooltip_heading',
+            [
+                'label'     => esc_html__( 'Company Tooltip', 'suz-control-panel' ),
+                'type'      => \Elementor\Controls_Manager::HEADING,
+                'separator' => 'before',
+            ]
+        );
+
+        $this->add_control(
+            'enable_company_tooltip',
+            [
+                'label'        => esc_html__( 'Enable Company Tooltip', 'suz-control-panel' ),
+                'type'         => \Elementor\Controls_Manager::SWITCHER,
+                'label_on'     => esc_html__( 'On', 'suz-control-panel' ),
+                'label_off'    => esc_html__( 'Off', 'suz-control-panel' ),
+                'return_value' => 'yes',
+                'default'      => '',
+            ]
+        );
+
+        $this->add_control(
+            'company_popup_template_id',
+            [
+                'label'       => esc_html__( 'Company Tooltip Content Template ID', 'suz-control-panel' ),
+                'type'        => \Elementor\Controls_Manager::NUMBER,
+                'min'         => 1,
+                'default'     => '',
+                'description' => esc_html__( 'Elementor template/page ID rendered inside company tooltip.', 'suz-control-panel' ),
+                'condition'   => [
+                    'enable_company_tooltip' => 'yes',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'company_fallback_popup_template_id',
+            [
+                'label'       => esc_html__( 'Company Fallback Tooltip Template ID', 'suz-control-panel' ),
+                'type'        => \Elementor\Controls_Manager::NUMBER,
+                'min'         => 1,
+                'default'     => '',
+                'description' => esc_html__( 'Optional: Elementor template/page ID used when company tooltip data/template is unavailable.', 'suz-control-panel' ),
+                'condition'   => [
+                    'enable_company_tooltip' => 'yes',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'company_tooltip_panel_width',
+            [
+                'label'       => esc_html__( 'Company Tooltip Width (px)', 'suz-control-panel' ),
+                'type'        => \Elementor\Controls_Manager::NUMBER,
+                'min'         => 220,
+                'max'         => 1200,
+                'step'        => 10,
+                'default'     => 560,
+                'condition'   => [
+                    'enable_company_tooltip' => 'yes',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'company_tooltip_panel_height',
+            [
+                'label'       => esc_html__( 'Company Tooltip Max Height (px)', 'suz-control-panel' ),
+                'type'        => \Elementor\Controls_Manager::NUMBER,
+                'min'         => 180,
+                'max'         => 1200,
+                'step'        => 10,
+                'default'     => 560,
+                'condition'   => [
+                    'enable_company_tooltip' => 'yes',
                 ],
             ]
         );
@@ -199,6 +287,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                 'selectors' => [
                     '{{WRAPPER}} a'                    => 'color: {{VALUE}};',
                     '{{WRAPPER}} .meta-value'          => 'color: {{VALUE}};',
+                    '{{WRAPPER}} .suz-label-separator' => 'color: {{VALUE}};',
                     '{{WRAPPER}} .suz-tooltip-trigger' => 'color: {{VALUE}};',
                 ],
             ]
@@ -208,7 +297,7 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
             \Elementor\Group_Control_Typography::get_type(),
             [
                 'name'     => 'typography',
-                'selector' => '{{WRAPPER}} a, {{WRAPPER}} .meta-value, {{WRAPPER}} .suz-tooltip-trigger',
+                'selector' => '{{WRAPPER}} a, {{WRAPPER}} .meta-value, {{WRAPPER}} .suz-label-separator, {{WRAPPER}} .suz-tooltip-trigger',
             ]
         );
 
@@ -553,52 +642,157 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         ];
     }
 
-    private function build_label_from_parts( $parts, $separator ) {
-        $parts = array_values( array_filter( $parts, function ( $part ) {
-            return '' !== $part;
-        } ) );
-
-        if ( empty( $parts ) ) {
-            return __( 'Speaker details', 'suz-control-panel' );
-        }
-
-        return implode( $separator, $parts );
-    }
-
-    private function build_speaker_label( $speaker_id, $label_settings ) {
+    private function get_speaker_label_parts( $speaker_id, $label_settings ) {
         $parts = [];
 
         if ( $label_settings['show_name'] ) {
-            $parts[] = $this->normalize_label_part( get_the_title( $speaker_id ) );
+            $parts['name'] = $this->normalize_label_part( get_the_title( $speaker_id ) );
         }
 
         if ( $label_settings['show_position'] ) {
-            $parts[] = $this->get_speaker_meta_text( $speaker_id, 'suz_speaker_designation' );
+            $parts['position'] = $this->get_speaker_meta_text( $speaker_id, 'suz_speaker_designation' );
         }
 
         if ( $label_settings['show_company'] ) {
-            $parts[] = $this->get_speaker_meta_text( $speaker_id, 'suz_speaker_company' );
+            $parts['company'] = $this->get_speaker_meta_text( $speaker_id, 'suz_speaker_company' );
         }
 
-        return $this->build_label_from_parts( $parts, $label_settings['separator'] );
+        return $parts;
     }
 
-    private function build_fallback_speaker_label( $role, $company, $label_settings ) {
+    private function get_fallback_label_parts( $role, $company, $label_settings ) {
         $parts = [];
 
         if ( $label_settings['show_position'] ) {
-            $parts[] = $this->normalize_label_part( $role );
+            $parts['position'] = $this->normalize_label_part( $role );
         }
 
         if ( $label_settings['show_company'] ) {
-            $parts[] = $this->normalize_label_part( $company );
+            $parts['company'] = $this->normalize_label_part( $company );
         }
 
         if ( empty( array_filter( $parts ) ) ) {
-            $parts[] = $this->normalize_label_part( $company );
+            $parts['company'] = $this->normalize_label_part( $company );
         }
 
-        return $this->build_label_from_parts( $parts, $label_settings['separator'] );
+        return $parts;
+    }
+
+    private function get_name_tooltip_settings( $settings ) {
+        return [
+            'enabled'              => ! isset( $settings['enable_tooltip'] ) || 'yes' === $settings['enable_tooltip'],
+            'popup_template_id'    => isset( $settings['popup_template_id'] ) ? absint( $settings['popup_template_id'] ) : 0,
+            'fallback_template_id' => isset( $settings['fallback_popup_template_id'] ) ? absint( $settings['fallback_popup_template_id'] ) : 0,
+            'width'                => isset( $settings['tooltip_panel_width'] ) ? absint( $settings['tooltip_panel_width'] ) : 560,
+            'height'               => isset( $settings['tooltip_panel_height'] ) ? absint( $settings['tooltip_panel_height'] ) : 560,
+        ];
+    }
+
+    private function get_company_tooltip_settings( $settings ) {
+        return [
+            'enabled'              => isset( $settings['enable_company_tooltip'] ) && 'yes' === $settings['enable_company_tooltip'],
+            'popup_template_id'    => isset( $settings['company_popup_template_id'] ) ? absint( $settings['company_popup_template_id'] ) : 0,
+            'fallback_template_id' => isset( $settings['company_fallback_popup_template_id'] ) ? absint( $settings['company_fallback_popup_template_id'] ) : 0,
+            'width'                => isset( $settings['company_tooltip_panel_width'] ) ? absint( $settings['company_tooltip_panel_width'] ) : 560,
+            'height'               => isset( $settings['company_tooltip_panel_height'] ) ? absint( $settings['company_tooltip_panel_height'] ) : 560,
+        ];
+    }
+
+    private function build_label_html_from_parts( $parts, $separator, $tooltip_parts = [] ) {
+        $output = [];
+
+        foreach ( $parts as $part_key => $part_label ) {
+            $part_label = $this->normalize_label_part( $part_label );
+
+            if ( '' === $part_label ) {
+                continue;
+            }
+
+            if ( isset( $tooltip_parts[ $part_key ] ) && $this->has_displayable_content( $tooltip_parts[ $part_key ]['content'] ) ) {
+                $output[] = $this->build_tooltip_item(
+                    $part_label,
+                    $tooltip_parts[ $part_key ]['content'],
+                    $tooltip_parts[ $part_key ]['width'],
+                    $tooltip_parts[ $part_key ]['height']
+                );
+            } else {
+                $output[] = '<span class="meta-value">' . esc_html( $part_label ) . '</span>';
+            }
+        }
+
+        if ( empty( $output ) ) {
+            return '<span class="meta-value">' . esc_html__( 'Speaker details', 'suz-control-panel' ) . '</span>';
+        }
+
+        return implode( '<span class="suz-label-separator">' . esc_html( $separator ) . '</span>', $output );
+    }
+
+    private function build_speaker_label_html( $speaker_id, $label_settings, $name_tooltip_settings, $company_tooltip_settings, &$should_print_tooltip_assets ) {
+        $parts         = $this->get_speaker_label_parts( $speaker_id, $label_settings );
+        $tooltip_parts = [];
+
+        if ( $label_settings['show_name'] && $name_tooltip_settings['enabled'] ) {
+            $content = $this->get_tooltip_content(
+                $speaker_id,
+                $name_tooltip_settings['popup_template_id'],
+                $name_tooltip_settings['fallback_template_id'],
+                false
+            );
+
+            if ( $this->has_displayable_content( $content ) ) {
+                $tooltip_parts['name'] = [
+                    'content' => $content,
+                    'width'   => $name_tooltip_settings['width'],
+                    'height'  => $name_tooltip_settings['height'],
+                ];
+                $should_print_tooltip_assets = true;
+            }
+        }
+
+        if ( $label_settings['show_company'] && $company_tooltip_settings['enabled'] ) {
+            $content = $this->get_tooltip_content(
+                $speaker_id,
+                $company_tooltip_settings['popup_template_id'],
+                $company_tooltip_settings['fallback_template_id'],
+                false
+            );
+
+            if ( $this->has_displayable_content( $content ) ) {
+                $tooltip_parts['company'] = [
+                    'content' => $content,
+                    'width'   => $company_tooltip_settings['width'],
+                    'height'  => $company_tooltip_settings['height'],
+                ];
+                $should_print_tooltip_assets = true;
+            }
+        }
+
+        return $this->build_label_html_from_parts( $parts, $label_settings['separator'], $tooltip_parts );
+    }
+
+    private function build_fallback_label_html( $post_id, $role, $company, $label_settings, $company_tooltip_settings, &$should_print_tooltip_assets ) {
+        $parts         = $this->get_fallback_label_parts( $role, $company, $label_settings );
+        $tooltip_parts = [];
+
+        if ( isset( $parts['company'] ) && $company_tooltip_settings['enabled'] ) {
+            $content = $this->get_tooltip_content(
+                $post_id,
+                $company_tooltip_settings['popup_template_id'],
+                $company_tooltip_settings['fallback_template_id'],
+                false
+            );
+
+            if ( $this->has_displayable_content( $content ) ) {
+                $tooltip_parts['company'] = [
+                    'content' => $content,
+                    'width'   => $company_tooltip_settings['width'],
+                    'height'  => $company_tooltip_settings['height'],
+                ];
+                $should_print_tooltip_assets = true;
+            }
+        }
+
+        return $this->build_label_html_from_parts( $parts, $label_settings['separator'], $tooltip_parts );
     }
 
     private function render_tooltip_template_content( $post_id, $template_id ) {
@@ -698,13 +892,10 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
     protected function render() {
         $settings          = $this->get_settings_for_display();
         $key               = isset( $settings['key'] ) ? $settings['key'] : '';
-        $enable_tooltip    = isset( $settings['enable_tooltip'] ) && 'yes' === $settings['enable_tooltip'];
         $post_id           = get_the_ID();
-        $popup_template_id = isset( $settings['popup_template_id'] ) ? absint( $settings['popup_template_id'] ) : 0;
-        $fallback_popup_template_id = isset( $settings['fallback_popup_template_id'] ) ? absint( $settings['fallback_popup_template_id'] ) : 0;
-        $tooltip_width     = isset( $settings['tooltip_panel_width'] ) ? absint( $settings['tooltip_panel_width'] ) : 560;
-        $tooltip_height    = isset( $settings['tooltip_panel_height'] ) ? absint( $settings['tooltip_panel_height'] ) : 560;
         $label_settings    = $this->get_label_settings( $settings );
+        $name_tooltip      = $this->get_name_tooltip_settings( $settings );
+        $company_tooltip   = $this->get_company_tooltip_settings( $settings );
 
         $users    = get_post_meta( $post_id, $key, true );
         $suz_lsc  = get_post_meta( $post_id, 'suz_lecture_speaker_company', true );
@@ -718,37 +909,6 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
             ( '' !== trim( (string) $suz_lsp ) ) ||
             ( '' !== trim( (string) $suz_lscl ) ) ||
             ( '' !== trim( (string) $suz_lsb ) );
-
-        if ( ! $enable_tooltip ) {
-            if ( ! empty( $users ) ) {
-                if ( ! is_array( $users ) ) {
-                    $users = [ $users ];
-                }
-
-                $labels = [];
-
-                foreach ( $users as $user_id ) {
-                    if ( ! is_numeric( $user_id ) || ! get_post( $user_id ) ) {
-                        continue;
-                    }
-
-                    $labels[] = $this->build_speaker_label( absint( $user_id ), $label_settings );
-                }
-
-                if ( ! empty( $labels ) ) {
-                    echo '<span class="meta-value">' . esc_html( implode( ', ', $labels ) ) . '</span>';
-                    return;
-                }
-            }
-
-            if ( $has_fallback_data ) {
-                $fallback_label = $this->build_fallback_speaker_label( $suz_lsr, $suz_lsc, $label_settings );
-                echo '<span class="meta-value">' . esc_html( $fallback_label ) . '</span>';
-            } else {
-                echo '<span class="meta-value">' . esc_html( $suz_lsc ) . '</span>';
-            }
-            return;
-        }
 
         $should_print_tooltip_assets = false;
 
@@ -764,42 +924,37 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                     continue;
                 }
 
-                $user_id         = absint( $user_id );
-                $speaker_label    = $this->build_speaker_label( $user_id, $label_settings );
-                $tooltip_content = $this->get_tooltip_content( $user_id, $popup_template_id, $fallback_popup_template_id, false );
-
-                if ( $this->has_displayable_content( $tooltip_content ) ) {
-                    $items[] = $this->build_tooltip_item( $speaker_label, $tooltip_content, $tooltip_width, $tooltip_height );
-                    $should_print_tooltip_assets = true;
-                } else {
-                    $items[] = '<span class="meta-value">' . esc_html( $speaker_label ) . '</span>';
-                }
+                $items[] = $this->build_speaker_label_html(
+                    absint( $user_id ),
+                    $label_settings,
+                    $name_tooltip,
+                    $company_tooltip,
+                    $should_print_tooltip_assets
+                );
             }
 
             if ( ! empty( $items ) ) {
                 echo '<div class="suz-user-list">' . implode( ', ', $items ) . '</div>';
             } elseif ( $has_fallback_data ) {
-                $fallback_label   = $this->build_fallback_speaker_label( $suz_lsr, $suz_lsc, $label_settings );
-                $tooltip_content  = $this->get_tooltip_content( $post_id, $popup_template_id, $fallback_popup_template_id, true );
-
-                if ( $this->has_displayable_content( $tooltip_content ) ) {
-                    echo $this->build_tooltip_item( $fallback_label, $tooltip_content, $tooltip_width, $tooltip_height );
-                    $should_print_tooltip_assets = true;
-                } else {
-                    echo '<span class="meta-value">' . esc_html( $fallback_label ) . '</span>';
-                }
+                echo $this->build_fallback_label_html(
+                    $post_id,
+                    $suz_lsr,
+                    $suz_lsc,
+                    $label_settings,
+                    $company_tooltip,
+                    $should_print_tooltip_assets
+                );
             }
         } else {
             if ( $has_fallback_data ) {
-                $fallback_label  = $this->build_fallback_speaker_label( $suz_lsr, $suz_lsc, $label_settings );
-                $tooltip_content = $this->get_tooltip_content( $post_id, $popup_template_id, $fallback_popup_template_id, true );
-
-                if ( $this->has_displayable_content( $tooltip_content ) ) {
-                    echo $this->build_tooltip_item( $fallback_label, $tooltip_content, $tooltip_width, $tooltip_height );
-                    $should_print_tooltip_assets = true;
-                } else {
-                    echo '<span class="meta-value">' . esc_html( $fallback_label ) . '</span>';
-                }
+                echo $this->build_fallback_label_html(
+                    $post_id,
+                    $suz_lsr,
+                    $suz_lsc,
+                    $label_settings,
+                    $company_tooltip,
+                    $should_print_tooltip_assets
+                );
             } else {
                 echo '<span class="meta-value">' . esc_html( $suz_lsc ) . '</span>';
             }
