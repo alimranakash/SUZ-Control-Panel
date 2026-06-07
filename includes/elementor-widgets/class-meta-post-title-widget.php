@@ -34,6 +34,27 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         return [ 'general' ];
     }
 
+    private function get_lecture_type_term_options() {
+        $terms = get_terms(
+            [
+                'taxonomy'   => 'suz_lecture_type_tax',
+                'hide_empty' => false,
+            ]
+        );
+
+        if ( is_wp_error( $terms ) || empty( $terms ) ) {
+            return [];
+        }
+
+        $options = [];
+
+        foreach ( $terms as $term ) {
+            $options[ $term->slug ] = $term->name;
+        }
+
+        return $options;
+    }
+
     protected function _register_controls() {
         // Content Tab.
         $this->start_controls_section(
@@ -51,6 +72,19 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
                 'type'        => \Elementor\Controls_Manager::TEXT,
                 'default'     => '',
                 'description' => esc_html__( 'Enter the meta key to retrieve the post ID.', 'suz-control-panel' ),
+            ]
+        );
+
+        $this->add_control(
+            'hide_for_lecture_type_terms',
+            [
+                'label'       => esc_html__( 'Hide for Lecture Types', 'suz-control-panel' ),
+                'type'        => \Elementor\Controls_Manager::SELECT2,
+                'multiple'    => true,
+                'label_block' => true,
+                'options'     => $this->get_lecture_type_term_options(),
+                'default'     => [],
+                'description' => esc_html__( 'Select lecture type terms that should hide this meta content.', 'suz-control-panel' ),
             ]
         );
 
@@ -917,8 +951,10 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $settings          = $this->get_settings_for_display();
         $key               = isset( $settings['key'] ) ? trim( (string) $settings['key'] ) : '';
         $post_id           = get_the_ID();
+        $hide_terms        = isset( $settings['hide_for_lecture_type_terms'] ) ? (array) $settings['hide_for_lecture_type_terms'] : [];
+        $hide_terms        = array_filter( array_map( 'sanitize_title', $hide_terms ) );
 
-        if ( has_term( [ 'inc', 'enc' ], 'suz_lecture_type_tax', $post_id ) ) {
+        if ( ! empty( $hide_terms ) && has_term( $hide_terms, 'suz_lecture_type_tax', $post_id ) ) {
             return;
         }
 
