@@ -917,6 +917,11 @@ class MetaPostTitleWidget extends \Elementor\Widget_Base {
         $settings          = $this->get_settings_for_display();
         $key               = isset( $settings['key'] ) ? trim( (string) $settings['key'] ) : '';
         $post_id           = get_the_ID();
+
+        if ( has_term( [ 'inc', 'enc' ], 'suz_lecture_type_tax', $post_id ) ) {
+            return;
+        }
+
         $label_settings    = $this->get_label_settings( $settings );
         $name_tooltip      = $this->get_name_tooltip_settings( $settings );
         $company_tooltip   = $this->get_company_tooltip_settings( $settings );
